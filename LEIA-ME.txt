@@ -1,0 +1,54 @@
+GERADOR DE VÍDEOS DAS PRÉVIAS
+=============================
+Gera um vídeo vertical (1080x1920, 10 segundos) para cada prévia:
+zoom lento no topo, deslize até os serviços, seção sobre, chamada final e fade.
+Leva cerca de 40 segundos por vídeo.
+
+INSTALAR (uma vez só)
+1. Instale o Node.js (versão LTS) em https://nodejs.org
+2. Copie esta pasta para dentro do projeto:
+   C:\Users\gipin\OneDrive\Desktop\projeto clinicas\gerador-videos
+3. Coloque o arquivo clinicas-import.json dentro desta pasta.
+4. Abra o terminal nesta pasta e rode:
+      npm install
+      npx playwright install chromium
+
+USAR
+As prévias precisam estar na pasta previews do projeto (um nível acima desta):
+   projeto clinicas\previews\<SLUG>\index.html
+(SLUG é a coluna do clinicas-import.json, ex.: wg-dentista-parque-brasil)
+
+Gerar todos os vídeos das prévias que já existem:
+      npm run videos
+
+Só as 10 da camada A:
+      npm run videos-top10
+
+Só uma clínica:
+      node gerar-videos.mjs --json clinicas-import.json --previews ..\previews --only wg-dentista-parque-brasil
+
+Um arquivo HTML qualquer:
+      node gerar-videos.mjs --file ..\previews\minha-clinica\index.html
+
+Os vídeos saem na pasta videos\<SLUG>.mp4.
+Vídeos que já existem são pulados. Para refazer, acrescente --force.
+Para gerar 2 ao mesmo tempo, acrescente --paralelo 2.
+
+Se as prévias estão em outra pasta, troque o --previews pelo caminho certo.
+Se o painel serve as prévias por um endereço local, use --url, por exemplo:
+      node gerar-videos.mjs --json clinicas-import.json --url http://localhost:5500/previews
+
+DEIXAR O MOVIMENTO MAIS PRECISO (pedir ao Antigravity)
+Nos 3 templates, marque as seções com o atributo data-video:
+   data-video="hero"       no topo
+   data-video="servicos"   na seção de serviços
+   data-video="sobre"      na seção sobre a clínica
+   data-video="cta"        na chamada final
+Sem as marcações, o script encontra as seções pelos títulos, mas pode errar
+em algum layout diferente.
+
+BOTÃO "GERAR VÍDEO" NO PAINEL (próximo passo)
+O navegador não consegue rodar este script sozinho. Para ter um botão no card,
+o Antigravity precisa criar um pequeno servidor local (Node) que, ao receber
+o SLUG, rode:  node gerar-videos.mjs --json clinicas-import.json --only <SLUG>
+e depois mostre o vídeo no card.

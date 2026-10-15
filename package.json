@@ -1,0 +1,16 @@
+{
+  "name": "gerador-videos-clinicas",
+  "version": "1.0.0",
+  "description": "Gera vídeos verticais de 10s das prévias das clínicas",
+  "scripts": {
+    "videos": "node gerar-videos.mjs --json clinicas-import.json --previews ./previews --out ./videos",
+    "videos-top10": "node gerar-videos.mjs --json clinicas-import.json --previews ./previews --out ./videos --camada A"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.64.1"
+  },
+  "type": "module"
+}

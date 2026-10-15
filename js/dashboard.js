@@ -1,0 +1,963 @@
+/**
+ * OdontoWebsites Hub - Sistema Integrado de Gestão de Vendas & CRM
+ * Pipeline de 30 Dias para Clínicas Odontológicas em São Paulo
+ * Meta: R$ 20.000 em Caixa + R$ 6.940 em MRR (21 dias úteis · 26 abordagens/dia)
+ */
+
+const MASTER_PIN = "odonto2026"; // Senha mestra de acesso restrito
+
+// Vídeos desktop 1920x1080 já gerados fisicamente em videos/
+const VIDEOS_GERADOS_INICIAIS = [
+  "belo-sorriso-odontologia-vila-albano",
+  "sq-mais-odontologia-e-vila-cordeiro",
+  "m-v-odontologia-e-estetica-jardim-reimberg"
+];
+
+// As 9 etapas oficiais do funil de vendas odontológico
+const KANBAN_STAGES = [
+  { key: "backlog", title: "📋 A Abordar", color: "#64748b" },
+  { key: "recepcao", title: "📞 Recepção", color: "#f59e0b" },
+  { key: "decisor", title: "💬 Decisor", color: "#38bdf8" },
+  { key: "enviada", title: "🚀 Prévia Enviada", color: "#818cf8" },
+  { key: "followup", title: "⏳ Follow-up (D+4/11)", color: "#fb923c" },
+  { key: "reuniao", title: "📅 Reunião (10-15m)", color: "#c084fc" },
+  { key: "fechado_pl", title: "🟢 Fechado: Presença Local", color: "#10b981" },
+  { key: "fechado_es", title: "🟢 Fechado: Essencial", color: "#059669" },
+  { key: "arquivado", title: "🔴 Arquivado", color: "#ef4444" }
+];
+
+let currentFilteredList = [];
+let displayedCount = 24;
+const PAGE_SIZE = 24;
+let currentFilter = "todos";
+let searchQuery = "";
+let currentActiveView = "list"; // 'list' ou 'kanban'
+let currentDrawerClinicId = null;
+let draggedClinicId = null;
+
+// --- INICIALIZAÇÃO DO SISTEMA ---
+document.addEventListener("DOMContentLoaded", () => {
+  initAuth();
+  syncGeneratedState();
+  initSavedStages();
+  renderKPIs();
+  applyFilters();
+  setupFilters();
+  setupSearch();
+  restoreSavedView();
+});
+
+// Sincroniza status das prévias (as 64 modernas já geradas no disco)
+function syncGeneratedState() {
+  const saved = JSON.parse(localStorage.getItem("odonto_geradas") || "[]");
+  CLINICAS_DATA.forEach(c => {
+    if (c.template.toLowerCase() === "moderno" || saved.includes(c.id)) {
+      c.status = "pronta";
+    }
+  });
+}
+
+// Inicializa estágios do Kanban salvos no localStorage
+function initSavedStages() {
+  const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
+  CLINICAS_DATA.forEach(c => {
+    if (!stages[c.id]) {
+      // Se já está no disco com vídeo gerado e é camada A, pré-define como 'enviada' se novo
+      if (VIDEOS_GERADOS_INICIAIS.includes(c.id)) {
+        stages[c.id] = "enviada";
+      } else {
+        stages[c.id] = "backlog";
+      }
+    }
+  });
+  localStorage.setItem("odonto_kanban_stages", JSON.stringify(stages));
+}
+
+function getClinicStage(clinicId) {
+  const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
+  return stages[clinicId] || "backlog";
+}
+
+function setClinicStage(clinicId, newStage, silent = false) {
+  const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
+  const oldStage = stages[clinicId] || "backlog";
+  stages[clinicId] = newStage;
+  localStorage.setItem("odonto_kanban_stages", JSON.stringify(stages));
+
+  // Se passou de backlog para qualquer estágio ativo e não registrou abordagem hoje, incrementa
+  if (oldStage === "backlog" && newStage !== "backlog" && newStage !== "arquivado") {
+    incrementTodayContact(true);
+  }
+
+  renderKPIs();
+  if (currentActiveView === "kanban") {
+    renderKanban();
+  } else {
+    renderClinics();
+  }
+
+  if (!silent) {
+    const stageObj = KANBAN_STAGES.find(s => s.key === newStage);
+    const stageName = stageObj ? stageObj.title : newStage;
+    showToast(`📌 Etapa alterada para: ${stageName}`);
+  }
+}
+
+// --- AUTENTICAÇÃO POR PIN / SENHA ---
+function initAuth() {
+  const lockOverlay = document.getElementById("lockOverlay");
+  const pinInput = document.getElementById("pinInput");
+  const pinBtn = document.getElementById("pinBtn");
+  const lockError = document.getElementById("lockError");
+  const rememberCheckbox = document.getElementById("rememberPin");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const isAuthenticated = localStorage.getItem("odonto_authenticated") === "true";
+  if (isAuthenticated) {
+    lockOverlay.classList.add("hidden");
+  } else {
+    lockOverlay.classList.remove("hidden");
+    pinInput.focus();
+  }
+
+  function handleUnlock() {
+    const inputVal = pinInput.value.trim();
+    if (inputVal === MASTER_PIN) {
+      lockOverlay.classList.add("hidden");
+      lockError.style.display = "none";
+      if (rememberCheckbox.checked) {
+        localStorage.setItem("odonto_authenticated", "true");
+      }
+      pinInput.value = "";
+    } else {
+      lockError.style.display = "block";
+      pinInput.value = "";
+      pinInput.focus();
+    }
+  }
+
+  pinBtn.addEventListener("click", handleUnlock);
+  pinInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleUnlock();
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("odonto_authenticated");
+    lockOverlay.classList.remove("hidden");
+    pinInput.value = "";
+    pinInput.focus();
+  });
+}
+
+// --- GESTÃO DE ABORDAGENS DIÁRIAS (CONTROLE DE RITMO 26/DIA) ---
+function getTodayStr() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getTodayContacts() {
+  const allLogs = JSON.parse(localStorage.getItem("odonto_daily_contacts") || "{}");
+  return allLogs[getTodayStr()] || 0;
+}
+
+function incrementTodayContact(silent = false) {
+  const allLogs = JSON.parse(localStorage.getItem("odonto_daily_contacts") || "{}");
+  const todayKey = getTodayStr();
+  allLogs[todayKey] = (allLogs[todayKey] || 0) + 1;
+  localStorage.setItem("odonto_daily_contacts", JSON.stringify(allLogs));
+
+  renderKPIs();
+  if (!silent) {
+    showToast(`🎯 +1 Abordagem registrada hoje! (${allLogs[todayKey]} / 26)`);
+  }
+}
+
+// --- CÁLCULO E RENDERIZAÇÃO DOS 6 INDICADORES DA META 30 DIAS ---
+function renderKPIs() {
+  const todayContacts = getTodayContacts();
+  const todayTarget = 26;
+  const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
+
+  // Contadores por estágio no pipeline
+  let totalAbordadas = 0;
+  let totalDecisor = 0;
+  let totalPositiva = 0;
+  let countPL = 0;
+  let countES = 0;
+
+  CLINICAS_DATA.forEach(c => {
+    const st = stages[c.id] || "backlog";
+    if (st !== "backlog") totalAbordadas++;
+    if (["decisor", "enviada", "followup", "reuniao", "fechado_pl", "fechado_es"].includes(st)) {
+      totalDecisor++;
+    }
+    if (["reuniao", "fechado_pl", "fechado_es"].includes(st)) {
+      totalPositiva++;
+    }
+    if (st === "fechado_pl") countPL++;
+    if (st === "fechado_es") countES++;
+  });
+
+  const totalFechados = countPL + countES;
+
+  // 1. Abordagens de Hoje
+  const todayPct = Math.min(100, Math.round((todayContacts / todayTarget) * 100));
+  const elTodayCount = document.getElementById("kpiTodayCount");
+  const elContactBar = document.getElementById("kpiContactBar");
+  if (elTodayCount) elTodayCount.textContent = todayContacts;
+  if (elContactBar) elContactBar.style.width = `${todayPct}%`;
+
+  // 2. Conversas com Decisor (Meta: 50% · Alerta < 30%)
+  const decisionPct = totalAbordadas > 0 ? Math.round((totalDecisor / totalAbordadas) * 100) : 0;
+  const elDecisionPct = document.getElementById("kpiDecisionPct");
+  const elDecisionBar = document.getElementById("kpiDecisionBar");
+  const elDecisionCount = document.getElementById("kpiDecisionCount");
+  if (elDecisionPct) {
+    elDecisionPct.textContent = `${decisionPct}%`;
+    elDecisionPct.style.color = (totalAbordadas >= 5 && decisionPct < 30) ? "#ef4444" : "#38bdf8";
+  }
+  if (elDecisionBar) elDecisionBar.style.width = `${Math.min(100, decisionPct * 2)}%`;
+  if (elDecisionCount) elDecisionCount.textContent = `${totalDecisor} de ${totalAbordadas} abordagens`;
+
+  // 3. Taxa de Resposta Positiva (Meta: 20% · Alerta < 15%)
+  const positivePct = totalDecisor > 0 ? Math.round((totalPositiva / totalDecisor) * 100) : 0;
+  const elPositivePct = document.getElementById("kpiPositivePct");
+  const elPositiveBar = document.getElementById("kpiPositiveBar");
+  const elPositiveCount = document.getElementById("kpiPositiveCount");
+  if (elPositivePct) {
+    elPositivePct.textContent = `${positivePct}%`;
+    elPositivePct.style.color = (totalDecisor >= 5 && positivePct < 15) ? "#ef4444" : "#c084fc";
+  }
+  if (elPositiveBar) elPositiveBar.style.width = `${Math.min(100, positivePct * 5)}%`;
+  if (elPositiveCount) elPositiveCount.textContent = `${totalPositiva} de ${totalDecisor} decisores`;
+
+  // 4. Mix Presença Local (Meta: 50% · Alerta < 35%)
+  const mixPct = totalFechados > 0 ? Math.round((countPL / totalFechados) * 100) : 0;
+  const elMixPct = document.getElementById("kpiMixPct");
+  const elMixBar = document.getElementById("kpiMixBar");
+  const elMixCount = document.getElementById("kpiMixCount");
+  if (elMixPct) {
+    elMixPct.textContent = `${mixPct}%`;
+    elMixPct.style.color = (totalFechados >= 2 && mixPct < 35) ? "#ef4444" : "#34d399";
+  }
+  if (elMixBar) elMixBar.style.width = `${Math.min(100, mixPct * 2)}%`;
+  if (elMixCount) elMixCount.textContent = `${countPL} PL / ${totalFechados} fechados`;
+
+  // 5. Caixa Acumulado (Meta: R$ 20.000 · PL: R$ 800, ES: R$ 1.000)
+  const caixa = (countPL * 800) + (countES * 1000);
+  const caixaTarget = 20000;
+  const caixaPct = Math.min(100, Math.round((caixa / caixaTarget) * 100));
+  const elCashVal = document.getElementById("kpiCashVal");
+  const elCashBar = document.getElementById("kpiCashBar");
+  const elSalesTotal = document.getElementById("kpiSalesTotal");
+  if (elCashVal) elCashVal.textContent = `R$ ${caixa.toLocaleString("pt-BR")}`;
+  if (elCashBar) elCashBar.style.width = `${caixaPct}%`;
+  if (elSalesTotal) elSalesTotal.textContent = `${totalFechados} vendas fechadas (Meta: 20)`;
+
+  // 6. MRR Ativo (Meta: R$ 6.940/mês · PL: R$ 497, ES: R$ 197)
+  const mrr = (countPL * 497) + (countES * 197);
+  const mrrTarget = 6940;
+  const mrrPct = Math.min(100, Math.round((mrr / mrrTarget) * 100));
+  const elMrrVal = document.getElementById("kpiMrrVal");
+  const elMrrBar = document.getElementById("kpiMrrBar");
+  if (elMrrVal) elMrrVal.textContent = `R$ ${mrr.toLocaleString("pt-BR")}/mês`;
+  if (elMrrBar) elMrrBar.style.width = `${mrrPct}%`;
+
+  // Alerta de Contingência Dinâmico
+  const elContingencyText = document.getElementById("contingencyText");
+  if (elContingencyText) {
+    if (todayContacts < 15) {
+      elContingencyText.innerHTML = `⚠️ <strong>Ritmo de Abordagens Baixo:</strong> Você fez ${todayContacts} contatos hoje. Mantenha o ritmo de 26/dia útil para garantir a meta de 20 clientes em 30 dias.`;
+    } else if (totalAbordadas >= 5 && decisionPct < 30) {
+      elContingencyText.innerHTML = `⚠️ <strong>Bloqueio na Recepção (${decisionPct}%):</strong> Menos de 30% chegaram ao dentista. Contingência: peça à secretária o WhatsApp do RT usando a técnica "A/C Dr(a) - prévia com vídeo de 10s pronta".`;
+    } else if (totalDecisor >= 5 && positivePct < 15) {
+      elContingencyText.innerHTML = `⚠️ <strong>Baixa Resposta Positiva (${positivePct}%):</strong> Contingência: envie diretamente o vídeo desktop de 10s sem link externo, seguido da mensagem curta no WhatsApp.`;
+    } else if (totalFechados >= 2 && mixPct < 35) {
+      elContingencyText.innerHTML = `⚠️ <strong>Mix Presença Local Abaixo de 35% (${mixPct}%):</strong> Apresente o Presença Local (R$ 800 + R$ 497/mês) como opção padrão e mantenha o Essencial apenas como contingência de entrada.`;
+    } else {
+      elContingencyText.innerHTML = `✅ <strong>Operação nos Trilhos:</strong> Pipeline ativo. Mantenha o foco nas 26 abordagens diárias e revisões de sexta (16/10, 23/10, 30/10 e 06/11).`;
+    }
+  }
+}
+
+// --- ALTERNADOR DE VISUALIZAÇÃO (LISTA vs KANBAN) ---
+function switchView(viewMode) {
+  currentActiveView = viewMode;
+  localStorage.setItem("odonto_active_view", viewMode);
+
+  const btnList = document.getElementById("btnViewList");
+  const btnKanban = document.getElementById("btnViewKanban");
+  const listView = document.getElementById("listView");
+  const kanbanView = document.getElementById("kanbanView");
+
+  if (viewMode === "kanban") {
+    btnKanban.classList.add("active");
+    btnList.classList.remove("active");
+    listView.style.display = "none";
+    kanbanView.classList.add("active");
+    renderKanban();
+  } else {
+    btnList.classList.add("active");
+    btnKanban.classList.remove("active");
+    listView.style.display = "block";
+    kanbanView.classList.remove("active");
+    renderClinics();
+  }
+}
+
+function restoreSavedView() {
+  const saved = localStorage.getItem("odonto_active_view") || "list";
+  switchView(saved);
+}
+
+// --- VISUALIZAÇÃO 1: RENDERIZAÇÃO DA LISTA DE CARDS ---
+function renderClinics() {
+  const container = document.getElementById("clinicsGrid");
+  const loadMoreWrap = document.getElementById("loadMoreWrap");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (currentFilteredList.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--text-secondary);">
+        <p style="font-size: 1.1rem; margin-bottom: 8px;">Nenhuma clínica encontrada para esse filtro.</p>
+        <span style="font-size: 0.85rem;">Tente buscar por outro termo ou limpar os filtros.</span>
+      </div>
+    `;
+    if (loadMoreWrap) loadMoreWrap.style.display = "none";
+    return;
+  }
+
+  const itemsToRender = currentFilteredList.slice(0, displayedCount);
+
+  itemsToRender.forEach(c => {
+    const card = document.createElement("article");
+    card.className = "clinic-card";
+
+    const isReady = c.status === "pronta";
+    const statusClass = isReady ? "pronta" : "pendente";
+    const statusText = isReady ? "Prévia Pronta" : "Aguardando Geração";
+    const hasVideo = VIDEOS_GERADOS_INICIAIS.includes(c.id);
+    const templateClass = c.template.toLowerCase();
+    const currentStageKey = getClinicStage(c.id);
+
+    // Link WhatsApp
+    const waLink = `https://wa.me/${c.telefoneFormatado}?text=${encodeURIComponent(c.scriptAbordagem || '')}`;
+
+    // Ações do Card
+    let actionButtons = "";
+    if (isReady) {
+      const videoBtn = hasVideo 
+        ? `<button class="btn-action" style="grid-column: span 2; background: #9333ea; color: #fff;" onclick="openVideoModal('${c.id}')">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+             <span>Assistir Vídeo Desktop (10s)</span>
+           </button>`
+        : `<button class="btn-action" style="grid-column: span 2; background: var(--bg-surface-alt); color: #d8b4fe; border: 1px dashed #a855f7;" onclick="copyVideoCommand('${c.id}')">
+             <span>🎥 Gravar Vídeo Desktop (Copiar Comando)</span>
+           </button>`;
+
+      actionButtons = `
+        <a href="${c.caminhoLocal}" target="_blank" rel="noopener noreferrer" class="btn-action btn-action-preview">
+          <span>Ver Prévia</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+          </svg>
+        </a>
+
+        <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-action btn-action-whatsapp">
+          <span>WhatsApp</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+          </svg>
+        </a>
+
+        ${videoBtn}
+      `;
+    } else {
+      actionButtons = `
+        <button class="btn-action btn-action-generate" onclick="handleGeneratePreview('${c.id}')">
+          <span>⚡ Gerar Prévia</span>
+        </button>
+      `;
+    }
+
+    const videoBadgeHtml = hasVideo 
+      ? `<span class="status-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); margin-left: 6px;">🎬 Vídeo 1080p Pronto</span>`
+      : "";
+
+    // Opções de estágio do Kanban
+    let stageOptions = KANBAN_STAGES.map(s => 
+      `<option value="${s.key}" ${s.key === currentStageKey ? 'selected' : ''}>${s.title}</option>`
+    ).join("");
+
+    card.innerHTML = `
+      <div class="clinic-top-row">
+        <div>
+          <div style="font-size: 0.72rem; color: var(--color-gold); font-weight: 700; margin-bottom: 2px;">
+            RANKING #${c.ranking} · CAMADA ${c.camada}
+          </div>
+          <h3 class="clinic-name">${c.nome}</h3>
+          <div class="clinic-location">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>${c.bairro}</span>
+          </div>
+        </div>
+        <span class="badge-template ${templateClass}">${c.template}</span>
+      </div>
+
+      <div style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+        <span class="status-badge ${statusClass}">● ${statusText}</span>
+        ${videoBadgeHtml}
+      </div>
+
+      <!-- Caixa do Subdomínio Oficial -->
+      <div class="subdomain-box" title="Clique no ícone para copiar">
+        <span class="subdomain-url">https://${c.subdominio}</span>
+        <button class="btn-copy-icon" onclick="copyToClipboard('https://${c.subdominio}')" title="Copiar link da prévia">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="clinic-google-stat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span>Nota <strong>${c.nota}</strong> (${c.avaliacoes} avaliações no Google)</span>
+      </div>
+
+      <!-- Estágio do Funil / Kanban -->
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+          Estágio no Funil:
+        </label>
+        <select class="kanban-select-stage" onchange="setClinicStage('${c.id}', this.value)">
+          ${stageOptions}
+        </select>
+      </div>
+
+      <div class="card-actions">
+        ${actionButtons}
+        <button class="btn-action btn-action-briefing" onclick="openBriefingModal('${c.id}')">
+          <span>Gaveta de Vendas (Scripts & Objeções)</span>
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (loadMoreWrap) {
+    if (displayedCount < currentFilteredList.length) {
+      loadMoreWrap.style.display = "block";
+      document.getElementById("btnLoadMore").textContent = `Carregar Mais Clínicas (Restam ${currentFilteredList.length - displayedCount})`;
+    } else {
+      loadMoreWrap.style.display = "none";
+    }
+  }
+}
+
+function loadMoreClinics() {
+  displayedCount += PAGE_SIZE;
+  renderClinics();
+}
+
+// --- VISUALIZAÇÃO 2: QUADRO KANBAN COM DRAG-AND-DROP NATIVO ---
+function renderKanban() {
+  const board = document.getElementById("kanbanBoard");
+  if (!board) return;
+  board.innerHTML = "";
+
+  const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
+
+  KANBAN_STAGES.forEach(stage => {
+    const col = document.createElement("div");
+    col.className = "kanban-col";
+
+    // Filtra clínicas que estão nesta coluna e respeitam os filtros ativos
+    const clinicsInStage = currentFilteredList.filter(c => (stages[c.id] || "backlog") === stage.key);
+
+    col.innerHTML = `
+      <div class="kanban-col-header" style="border-top: 3px solid ${stage.color};">
+        <span class="kanban-col-title">
+          <span>${stage.title}</span>
+        </span>
+        <span class="kanban-col-count" id="count_${stage.key}">${clinicsInStage.length}</span>
+      </div>
+      <div class="kanban-col-cards" id="cards_${stage.key}"
+           ondragover="handleDragOver(event)"
+           ondragleave="handleDragLeave(event)"
+           ondrop="handleDrop(event, '${stage.key}')">
+      </div>
+    `;
+
+    const cardsContainer = col.querySelector(`#cards_${stage.key}`);
+
+    clinicsInStage.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "kanban-card";
+      card.draggable = true;
+      card.ondragstart = (e) => handleDragStart(e, c.id);
+
+      const isReady = c.status === "pronta";
+      const hasVideo = VIDEOS_GERADOS_INICIAIS.includes(c.id);
+      const waLink = `https://wa.me/${c.telefoneFormatado}?text=${encodeURIComponent(c.scriptAbordagem || '')}`;
+
+      let stageOptions = KANBAN_STAGES.map(s => 
+        `<option value="${s.key}" ${s.key === stage.key ? 'selected' : ''}>${s.title}</option>`
+      ).join("");
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: var(--color-gold);">#${c.ranking} · ${c.camada}</span>
+          <span class="kanban-tag" style="background: rgba(197, 168, 128, 0.15); color: var(--color-gold); border: 1px solid rgba(197, 168, 128, 0.3);">
+            ${c.template}
+          </span>
+        </div>
+
+        <div class="kanban-card-title">${c.nome}</div>
+        <div class="kanban-card-meta">
+          <span>📍 ${c.bairro}</span>
+          <span>⭐ ${c.nota} (${c.avaliacoes})</span>
+        </div>
+
+        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;">
+          ${hasVideo ? '<span style="font-size: 0.65rem; color: #c084fc; font-weight: 700;">🎬 Vídeo Pronto</span>' : ''}
+          ${isReady ? '<span style="font-size: 0.65rem; color: #34d399; font-weight: 700;">● Prévia Pronta</span>' : ''}
+        </div>
+
+        <div class="kanban-card-actions">
+          <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-kanban-sm" style="color: #25d366;" title="Abrir WhatsApp">
+            WhatsApp
+          </a>
+          ${isReady 
+            ? `<a href="${c.caminhoLocal}" target="_blank" rel="noopener noreferrer" class="btn-kanban-sm" title="Ver prévia online">Prévia</a>`
+            : `<button class="btn-kanban-sm" onclick="handleGeneratePreview('${c.id}')" title="Gerar prévia">⚡ Gerar</button>`}
+          <button class="btn-kanban-sm" onclick="openBriefingModal('${c.id}')" title="Abrir gaveta de vendas">Scripts</button>
+        </div>
+
+        <select class="kanban-select-stage" onchange="setClinicStage('${c.id}', this.value)">
+          ${stageOptions}
+        </select>
+      `;
+
+      cardsContainer.appendChild(card);
+    });
+
+    board.appendChild(col);
+  });
+}
+
+// --- EVENTOS DE DRAG AND DROP NATIVO DO KANBAN ---
+function handleDragStart(e, clinicId) {
+  draggedClinicId = clinicId;
+  e.dataTransfer.setData("text/plain", clinicId);
+  e.dataTransfer.effectAllowed = "move";
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  e.currentTarget.classList.add("drag-over");
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove("drag-over");
+}
+
+function handleDrop(e, targetStageKey) {
+  e.preventDefault();
+  e.currentTarget.classList.remove("drag-over");
+  const clinicId = e.dataTransfer.getData("text/plain") || draggedClinicId;
+  if (!clinicId) return;
+
+  setClinicStage(clinicId, targetStageKey);
+  draggedClinicId = null;
+}
+
+// --- GERAÇÃO DE PRÉVIA EM 1 CLIQUE COM TRAVA DE SEGURANÇA ---
+function handleGeneratePreview(clinicId) {
+  const clinic = CLINICAS_DATA.find(c => c.id === clinicId);
+  if (!clinic) return;
+
+  // 1. REGRA: SE NÃO FOR MODERNO, DISPARA ERRO!
+  if (clinic.template.toLowerCase() !== "moderno") {
+    openAlertModal(
+      `Template "${clinic.template}" Indisponível`,
+      `A clínica <strong>${clinic.nome}</strong> (Ranking #${clinic.ranking} - ${clinic.bairro}) está marcada para usar o modelo <strong>${clinic.template}</strong>.<br><br>
+       ❌ <strong>O modelo "${clinic.template}" ainda não foi construído.</strong><br><br>
+       Atualmente, apenas clínicas com o <strong>Template Moderno</strong> podem ter suas prévias geradas. Assim que finalizarmos o template ${clinic.template}, essa opção será liberada!`
+    );
+    return;
+  }
+
+  // 2. SE FOR MODERNO: GERAÇÃO COM SUCESSO
+  clinic.status = "pronta";
+
+  // Salva no localStorage para persistência
+  const saved = JSON.parse(localStorage.getItem("odonto_geradas") || "[]");
+  if (!saved.includes(clinic.id)) {
+    saved.push(clinic.id);
+    localStorage.setItem("odonto_geradas", JSON.stringify(saved));
+  }
+
+  // Se a clínica ainda estava em backlog, move para "enviada"
+  const currentStage = getClinicStage(clinic.id);
+  if (currentStage === "backlog") {
+    setClinicStage(clinic.id, "enviada", true);
+  }
+
+  showToast(`✨ Prévia gerada com sucesso para ${clinic.nome}!`);
+  renderKPIs();
+  if (currentActiveView === "kanban") {
+    renderKanban();
+  } else {
+    renderClinics();
+  }
+
+  // Abre a prévia em nova aba
+  window.open(clinic.caminhoLocal, "_blank");
+}
+
+// --- BUSCA E FILTROS ---
+function applyFilters() {
+  let filtered = CLINICAS_DATA;
+
+  if (currentFilter === "moderno") {
+    filtered = filtered.filter(c => c.template.toLowerCase() === "moderno");
+  } else if (currentFilter === "profissional") {
+    filtered = filtered.filter(c => c.template.toLowerCase() === "profissional");
+  } else if (currentFilter === "amigavel") {
+    filtered = filtered.filter(c => c.template.toLowerCase() === "amigavel");
+  } else if (currentFilter === "prontas") {
+    filtered = filtered.filter(c => c.status === "pronta");
+  } else if (currentFilter === "camada_a") {
+    filtered = filtered.filter(c => c.camada === "A");
+  }
+
+  if (searchQuery.trim() !== "") {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(c => 
+      c.nome.toLowerCase().includes(q) ||
+      c.bairro.toLowerCase().includes(q) ||
+      c.subdominio.toLowerCase().includes(q) ||
+      c.ranking.toString() === q ||
+      c.telefone.includes(q)
+    );
+  }
+
+  currentFilteredList = filtered;
+  displayedCount = PAGE_SIZE;
+
+  if (currentActiveView === "kanban") {
+    renderKanban();
+  } else {
+    renderClinics();
+  }
+}
+
+function setupFilters() {
+  document.querySelectorAll(".filter-pill").forEach(pill => {
+    pill.addEventListener("click", function() {
+      document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+      this.classList.add("active");
+      currentFilter = this.getAttribute("data-filter");
+      applyFilters();
+    });
+  });
+}
+
+function setupSearch() {
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      applyFilters();
+    });
+  }
+}
+
+// --- GAVETA DE VENDAS (MODAL DE BRIEFING COM 4 ABAS) ---
+function openBriefingModal(clinicId) {
+  const clinic = CLINICAS_DATA.find(c => c.id === clinicId);
+  if (!clinic) return;
+
+  currentDrawerClinicId = clinicId;
+  const modal = document.getElementById("briefingModal");
+
+  // Dados de cabeçalho
+  document.getElementById("modalClinicName").textContent = `${clinic.nome} (Ranking #${clinic.ranking} · Camada ${clinic.camada})`;
+  document.getElementById("modalSubdomain").textContent = `https://${clinic.subdominio}`;
+
+  // Aba 1: Briefing
+  document.getElementById("modalDiagnosis").textContent = clinic.diagnostico || "Sem diagnóstico prévio.";
+  document.getElementById("modalTitle").textContent = clinic.titulo || "—";
+  document.getElementById("modalSubtitle").textContent = clinic.subtitulo || "—";
+  document.getElementById("modalServices").textContent = clinic.servicos.length ? clinic.servicos.join(" · ") : "—";
+  document.getElementById("modalHighlight").textContent = clinic.briefing || clinic.destaque || "—";
+  document.getElementById("modalAddress").textContent = clinic.endereco || "—";
+  document.getElementById("modalHours").textContent = clinic.horario || "—";
+  document.getElementById("modalBestTime").textContent = clinic.melhorHorario || "Horário comercial";
+
+  // Aba 2: Scripts personalizados com o nome da clínica
+  const prevUrl = `https://${clinic.subdominio}`;
+  document.getElementById("scriptRecepcaoText").textContent = 
+    `"Olá, tudo bem? Meu nome é [Seu Nome]. Preparei uma prévia visual exclusiva da nova página online da ${clinic.nome} com vídeo interativo para os pacientes de ${clinic.bairro}. Com quem falo na equipe do Dr(a) para encaminhar a prévia de 10 segundos?"`;
+
+  document.getElementById("scriptDecisorText").textContent = 
+    `"Olá Dr(a), tudo bem? Notei que a ${clinic.nome} tem uma excelente reputação no Google em ${clinic.bairro} (${clinic.avaliacoes} avaliações), mas ainda não tem uma página moderna com foco em agendamentos particulares no WhatsApp. Montei uma prévia completa sem compromisso para você ver como ficaria: ${prevUrl}. O que achou?"`;
+
+  document.getElementById("scriptFollowup4Text").textContent = 
+    `"Dr(a), tudo bem? Sei da correria dos atendimentos no consultório da ${clinic.nome}. Gravamos um vídeo de 10 segundos da sua prévia para facilitar a visualização sem precisar abrir links. Conseguiu dar uma olhada?"`;
+
+  document.getElementById("scriptFollowup11Text").textContent = 
+    `"Olá Dr(a)! Como não tivemos retorno, nosso servidor de testes irá desativar a prévia da ${clinic.nome} nesta sexta-feira para liberar espaço para outros consultórios de ${clinic.bairro}. Se tiver interesse em manter no ar ou personalizar, me avise hoje até às 18h!"`;
+
+  // Reseta para a primeira aba
+  switchDrawerTab("tabBriefing");
+  modal.classList.add("active");
+}
+
+function closeBriefingModal() {
+  const modal = document.getElementById("briefingModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function switchDrawerTab(tabId) {
+  // Esconde todos os conteúdos
+  document.querySelectorAll(".drawer-tab-content").forEach(el => el.classList.remove("active"));
+  // Remove ativo dos botões
+  document.querySelectorAll(".drawer-tab-btn").forEach(el => el.classList.remove("active"));
+
+  // Ativa selecionado
+  const content = document.getElementById(tabId);
+  if (content) content.classList.add("active");
+
+  const btnMap = {
+    tabBriefing: "tabBtnBriefing",
+    tabScripts: "tabBtnScripts",
+    tabObjections: "tabBtnObjections",
+    tabClosing: "tabBtnClosing"
+  };
+  const activeBtn = document.getElementById(btnMap[tabId]);
+  if (activeBtn) activeBtn.classList.add("active");
+}
+
+// Cópia de Scripts da Gaveta
+function copyContactScript(scriptType) {
+  const idMap = {
+    recepcao: "scriptRecepcaoText",
+    decisor: "scriptDecisorText",
+    followup4: "scriptFollowup4Text",
+    followup11: "scriptFollowup11Text"
+  };
+  const targetId = idMap[scriptType];
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  copyToClipboard(el.textContent.trim().replace(/^"|"$/g, ""));
+  showToast("💬 Script de contato copiado para a área de transferência!");
+}
+
+function copyObjection(objKey) {
+  const el = document.getElementById(`objAnswer_${objKey}`);
+  if (!el) return;
+
+  const clinic = CLINICAS_DATA.find(c => c.id === currentDrawerClinicId);
+  let text = el.textContent.trim().replace(/^"|"$/g, "");
+  if (clinic) {
+    text = text.replace(/\[Bairro\]/g, clinic.bairro);
+    text = text.replace(/\[Nome da Clínica\]/g, clinic.nome);
+  }
+
+  copyToClipboard(text);
+  showToast("🛡️ Resposta à objeção copiada com sucesso!");
+}
+
+function copyClosingScript() {
+  const el = document.getElementById("closingScriptText");
+  if (!el) return;
+  const clinic = CLINICAS_DATA.find(c => c.id === currentDrawerClinicId);
+  let text = el.innerText || el.textContent;
+  if (clinic) {
+    text = text.replace(/\[Nome da Clínica\]/g, clinic.nome);
+  }
+  copyToClipboard(text.trim().replace(/^"|"$/g, ""));
+  showToast("💰 Proposta e dados PIX copiados!");
+}
+
+// --- MODAL DE REVISÃO DE SEXTA (30 MINUTOS) ---
+function openReviewModal() {
+  const modal = document.getElementById("reviewModal");
+  if (modal) modal.classList.add("active");
+}
+
+function closeReviewModal() {
+  const modal = document.getElementById("reviewModal");
+  if (modal) modal.classList.remove("active");
+}
+
+// --- MODAL DE BACKUP & SINCRONIZAÇÃO DE DADOS ---
+function openBackupModal() {
+  const modal = document.getElementById("backupModal");
+  const area = document.getElementById("backupDataArea");
+
+  const bundle = {
+    exportDate: new Date().toISOString(),
+    stages: JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}"),
+    geradas: JSON.parse(localStorage.getItem("odonto_geradas") || "[]"),
+    dailyContacts: JSON.parse(localStorage.getItem("odonto_daily_contacts") || "{}")
+  };
+
+  area.value = JSON.stringify(bundle, null, 2);
+  modal.classList.add("active");
+}
+
+function closeBackupModal() {
+  const modal = document.getElementById("backupModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function copyBackupJson() {
+  const area = document.getElementById("backupDataArea");
+  copyToClipboard(area.value);
+  showToast("📋 JSON de backup copiado para a área de transferência!");
+}
+
+function exportDataJson() {
+  const area = document.getElementById("backupDataArea");
+  const blob = new Blob([area.value], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `backup-odonto-${getTodayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("📥 Arquivo de backup baixado com sucesso!");
+}
+
+function importDataJson() {
+  const area = document.getElementById("backupDataArea");
+  try {
+    const data = JSON.parse(area.value);
+    if (!data.stages && !data.dailyContacts) {
+      alert("Formato de backup inválido.");
+      return;
+    }
+    if (data.stages) localStorage.setItem("odonto_kanban_stages", JSON.stringify(data.stages));
+    if (data.geradas) localStorage.setItem("odonto_geradas", JSON.stringify(data.geradas));
+    if (data.dailyContacts) localStorage.setItem("odonto_daily_contacts", JSON.stringify(data.dailyContacts));
+
+    syncGeneratedState();
+    renderKPIs();
+    if (currentActiveView === "kanban") {
+      renderKanban();
+    } else {
+      renderClinics();
+    }
+
+    closeBackupModal();
+    showToast("✅ Dados do backup restaurados com sucesso!");
+  } catch (err) {
+    alert("Erro ao importar JSON. Verifique se o texto colado é um JSON válido.");
+  }
+}
+
+function resetAllProgress() {
+  if (confirm("ATENÇÃO: Deseja realmente resetar todo o progresso do funil, contatos diários e prévias para o estado inicial?")) {
+    localStorage.removeItem("odonto_kanban_stages");
+    localStorage.removeItem("odonto_daily_contacts");
+    localStorage.removeItem("odonto_geradas");
+    location.reload();
+  }
+}
+
+// --- MODAL DE ALERTA DE ERRO DE TEMPLATE ---
+function openAlertModal(title, message) {
+  const modal = document.getElementById("alertModal");
+  document.getElementById("alertModalTitle").innerHTML = title;
+  document.getElementById("alertModalMessage").innerHTML = message;
+  modal.classList.add("active");
+}
+
+function closeAlertModal() {
+  document.getElementById("alertModal").classList.remove("active");
+}
+
+// --- MODAL DE VÍDEO DESKTOP (1920x1080) ---
+function openVideoModal(slug) {
+  const clinic = CLINICAS_DATA.find(c => c.id === slug);
+  const modal = document.getElementById("videoModal");
+  const player = document.getElementById("videoPlayer");
+  const downloadBtn = document.getElementById("videoDownloadBtn");
+  const title = document.getElementById("videoModalTitle");
+
+  title.textContent = `Vídeo Desktop (1080p): ${clinic ? clinic.nome : slug}`;
+  player.src = `videos/${slug}.mp4`;
+  downloadBtn.href = `videos/${slug}.mp4`;
+  downloadBtn.setAttribute("download", `${slug}.mp4`);
+  modal.classList.add("active");
+  player.play().catch(() => {});
+}
+
+function closeVideoModal() {
+  const modal = document.getElementById("videoModal");
+  const player = document.getElementById("videoPlayer");
+  player.pause();
+  player.src = "";
+  modal.classList.remove("active");
+}
+
+function copyVideoCommand(slug) {
+  const cmd = `node gerar-videos.mjs --only ${slug}`;
+  copyToClipboard(cmd);
+  showToast(`📋 Comando copiado! Cole no terminal para gravar.`);
+}
+
+// --- UTILITÁRIOS: CLIPBOARD E TOAST ---
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // ok
+  }).catch(() => {
+    const tempInput = document.createElement("input");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+  });
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toastNotice");
+  const toastMsg = document.getElementById("toastMsg");
+  if (!toast || !toastMsg) return;
+  toastMsg.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2600);
+}
+
+// Fechamento de modais clicando fora
+window.addEventListener("click", (e) => {
+  const briefingModal = document.getElementById("briefingModal");
+  const alertModal = document.getElementById("alertModal");
+  const videoModal = document.getElementById("videoModal");
+  const reviewModal = document.getElementById("reviewModal");
+  const backupModal = document.getElementById("backupModal");
+
+  if (e.target === briefingModal) closeBriefingModal();
+  if (e.target === alertModal) closeAlertModal();
+  if (e.target === videoModal) closeVideoModal();
+  if (e.target === reviewModal) closeReviewModal();
+  if (e.target === backupModal) closeBackupModal();
+});

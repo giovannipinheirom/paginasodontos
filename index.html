@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoWebsites Hub · Catálogo Privado de Prévias</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- ====================================================================
+       TELA DE BLOQUEIO / PIN GATE (ACESSO EXCLUSIVO DO PROPRIETÁRIO)
+       ==================================================================== -->
+  <div class="lock-screen-overlay" id="lockOverlay">
+    <div class="lock-card">
+      <div class="lock-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1 class="lock-title">OdontoWebsites Hub</h1>
+      <p class="lock-sub">Painel restrito de gestão de landing pages e prévias para clínicas odontológicas.</p>
+
+      <div class="lock-input-group">
+        <input type="password" id="pinInput" class="lock-input" placeholder="••••••••" maxlength="15" autocomplete="current-password">
+      </div>
+
+      <label class="lock-remember">
+        <input type="checkbox" id="rememberPin" checked>
+        <span>Lembrar meu acesso neste dispositivo</span>
+      </label>
+
+      <button id="pinBtn" class="lock-btn">Acessar Catálogo</button>
+      <div id="lockError" class="lock-error-msg">Senha incorreta. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       PAINEL PRINCIPAL DO CATÁLOGO DE PRÉVIAS
+       ==================================================================== -->
+  <div class="dashboard-container">
+    
+    <!-- Header do Painel -->
+    <header class="dash-header">
+      <div>
+        <div class="dash-brand-title">
+          <span>OdontoWebsites Hub</span>
+          <span class="dash-brand-badge">Gestão de Vendas SP</span>
+        </div>
+        <p class="dash-header-desc">
+          Catálogo privado de prévias e subdomínios (<code>clinicaX.odontowebsites.com.br</code>) para prospecção ativa.
+        </p>
+      </div>
+
+      <div class="dash-actions-top">
+        <div class="view-switch-wrap">
+          <button class="btn-view-toggle active" id="btnViewList" onclick="switchView('list')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <span>Lista</span>
+          </button>
+          <button class="btn-view-toggle" id="btnViewKanban" onclick="switchView('kanban')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"></rect><rect x="10" y="3" width="5" height="11" rx="1"></rect><rect x="17" y="3" width="5" height="15" rx="1"></rect></svg>
+            <span>Kanban</span>
+          </button>
+        </div>
+
+        <button onclick="openReviewModal()" class="btn-lock" style="border-color: #38bdf8; color: #38bdf8;" title="Checklist de sexta e contingências">
+          <span>📊 Revisão de Sexta</span>
+        </button>
+
+        <button onclick="openBackupModal()" class="btn-lock" style="border-color: #a78bfa; color: #a78bfa;" title="Exportar e importar dados salvos">
+          <span>💾 Backup</span>
+        </button>
+
+        <a href="templates/moderno/index.html" target="_blank" rel="noopener noreferrer" class="btn-lock" style="border-color: var(--color-gold); color: var(--color-gold-light);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>Template Base</span>
+        </a>
+
+        <button id="logoutBtn" class="btn-lock" title="Bloquear painel imediatamente">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Bloquear</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         PAINEL DE INDICADORES & PONTOS DE CONTROLE (META 30 DIAS)
+         ==================================================================== -->
+    <section class="kpis-dashboard" aria-label="Indicadores de Vendas">
+      <div class="kpis-header">
+        <div class="kpis-title-group">
+          <h2>
+            <span>🎯 Indicadores & Pontos de Controle</span>
+            <span class="kpis-meta-tag">Meta 30 Dias: R$ 20.000 + R$ 6.940 MRR</span>
+          </h2>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+            21 dias úteis · Ritmo diário: <strong>26 abordagens/dia</strong> · Revisão de Sexta: 16/10, 23/10, 30/10 e 06/11
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis-grid">
+        <!-- 1. Abordagens por Dia Útil -->
+        <div class="kpi-box" id="kpiBoxAbordagens">
+          <span class="kpi-title">Abordagens Hoje</span>
+          <div class="kpi-metric">
+            <span id="kpiTodayCount">0</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">/ 26</span>
+          </div>
+          <span class="kpi-target">Meta: 26/dia (Alerta &lt; 20)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiContactBar" style="width: 0%;"></div>
+          </div>
+          <button class="btn-add-contact" onclick="incrementTodayContact()" title="Registrar mais 1 abordagem hoje">
+            +1 Abordagem Feita
+          </button>
+        </div>
+
+        <!-- 2. Conversas com o Decisor -->
+        <div class="kpi-box" id="kpiBoxDecisor">
+          <span class="kpi-title">Conversa c/ Decisor</span>
+          <div class="kpi-metric" id="kpiDecisionPct" style="color: #38bdf8;">0%</div>
+          <span class="kpi-target">Meta: 50% (Alerta &lt; 30%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiDecisionBar" style="width: 0%; background: #38bdf8;"></div>
+          </div>
+          <span id="kpiDecisionCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 decisores contatados</span>
+        </div>
+
+        <!-- 3. Taxa de Resposta Positiva -->
+        <div class="kpi-box" id="kpiBoxResposta">
+          <span class="kpi-title">Resposta Positiva</span>
+          <div class="kpi-metric" id="kpiPositivePct" style="color: #c084fc;">0%</div>
+          <span class="kpi-target">Meta: 20% (Alerta &lt; 15%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiPositiveBar" style="width: 0%; background: #c084fc;"></div>
+          </div>
+          <span id="kpiPositiveCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 respostas positivas</span>
+        </div>
+
+        <!-- 4. Mix Presença Local -->
+        <div class="kpi-box" id="kpiBoxMix">
+          <span class="kpi-title">Mix Presença Local</span>
+          <div class="kpi-metric" id="kpiMixPct" style="color: #34d399;">0%</div>
+          <span class="kpi-target">Meta: 50% (Alerta &lt; 35%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiMixBar" style="width: 0%; background: #34d399;"></div>
+          </div>
+          <span id="kpiMixCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 PL / 0 fechados</span>
+        </div>
+
+        <!-- 5. Caixa Acumulado -->
+        <div class="kpi-box" id="kpiBoxCash">
+          <span class="kpi-title">Caixa Acumulado</span>
+          <div class="kpi-metric" id="kpiCashVal" style="color: #34d399; font-size: 1.25rem;">R$ 0</div>
+          <span class="kpi-target">Meta: R$ 20.000</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiCashBar" style="width: 0%; background: #34d399;"></div>
+          </div>
+          <span id="kpiSalesTotal" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 vendas fechadas</span>
+        </div>
+
+        <!-- 6. MRR Ativo -->
+        <div class="kpi-box" id="kpiBoxMrr">
+          <span class="kpi-title">MRR Ativo</span>
+          <div class="kpi-metric" id="kpiMrrVal" style="color: #fbbf24; font-size: 1.25rem;">R$ 0/mês</div>
+          <span class="kpi-target">Meta: R$ 6.940/mês</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiMrrBar" style="width: 0%; background: #fbbf24;"></div>
+          </div>
+          <span id="kpiMrrSub" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">Mensalidades ativas</span>
+        </div>
+      </div>
+
+      <!-- Banner de Contingência e Alertas Dinâmicos -->
+      <div class="contingency-banner" id="contingencyBanner">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">⚡</span>
+          <span id="contingencyText">Painel pronto. Mantenha o ritmo de 26 abordagens/dia para bater a meta de R$ 20.000 em 30 dias.</span>
+        </div>
+        <button class="btn-copy-sm" onclick="openReviewModal()">Ver Contingências</button>
+      </div>
+    </section>
+
+    <!-- Barra de Busca e Filtros -->
+    <section class="controls-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por clínica, bairro, subdomínio ou ranking...">
+      </div>
+
+      <div class="filters-group">
+        <button class="filter-pill active" data-filter="todos">Todos</button>
+        <button class="filter-pill" data-filter="prontas">Prévias Prontas</button>
+        <button class="filter-pill" data-filter="camada_a">Camada A (Prioridade)</button>
+        <button class="filter-pill" data-filter="moderno">Moderno</button>
+        <button class="filter-pill" data-filter="profissional">Profissional</button>
+        <button class="filter-pill" data-filter="amigavel">Amigável</button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISUALIZAÇÃO 1: MODO LISTA / GRID DE CLÍNICAS
+         ==================================================================== -->
+    <div id="listView">
+      <section class="clinics-grid" id="clinicsGrid" aria-label="Lista de Clínicas">
+        <!-- Cards são renderizados dinamicamente via dashboard.js -->
+      </section>
+
+      <!-- Botão de Carregar Mais -->
+      <div class="load-more-wrap" id="loadMoreWrap" style="display: none;">
+        <button class="btn-load-more" id="btnLoadMore" onclick="loadMoreClinics()">
+          Carregar Mais Clínicas (+30)
+        </button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VISUALIZAÇÃO 2: MODO QUADRO KANBAN (PIPELINE DE VENDAS COMPLETO)
+         ==================================================================== -->
+    <div id="kanbanView" class="kanban-view-container">
+      <div class="kanban-board" id="kanbanBoard">
+        <!-- Colunas e cards renderizados dinamicamente via dashboard.js -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE AVISO / BLOQUEIO DE TEMPLATE INDISPONÍVEL
+       ==================================================================== -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal-card" style="max-width: 500px; text-align: center;">
+      <button class="modal-close-btn" onclick="closeAlertModal()" aria-label="Fechar">&times;</button>
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        ⚠️
+      </div>
+      <h2 class="modal-title" id="alertModalTitle" style="color: #fca5a5;">Template Ainda Não Disponível</h2>
+      
+      <div class="modal-alert-box" id="alertModalMessage">
+        Mensagem de aviso...
+      </div>
+
+      <button class="lock-btn" onclick="closeAlertModal()" style="background: #ef4444; color: #fff; margin-top: 10px;">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE BRIEFING E GAVETA DE VENDAS COMPLETA (4 ABAS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="briefingModal">
+    <div class="modal-card" style="max-width: 720px;">
+      <button class="modal-close-btn" onclick="closeBriefingModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="margin-bottom: 16px;">
+        <h2 class="modal-title" id="modalClinicName">Nome da Clínica</h2>
+        <div class="modal-subtitle" id="modalSubdomain" style="margin-bottom: 14px;">https://subdominio.odontowebsites.com.br</div>
+        
+        <!-- Abas da Gaveta de Vendas -->
+        <div class="drawer-tabs">
+          <button class="drawer-tab-btn active" id="tabBtnBriefing" onclick="switchDrawerTab('tabBriefing')">📋 Briefing</button>
+          <button class="drawer-tab-btn" id="tabBtnScripts" onclick="switchDrawerTab('tabScripts')">💬 Scripts de Contato</button>
+          <button class="drawer-tab-btn" id="tabBtnObjections" onclick="switchDrawerTab('tabObjections')">🛡️ Matador de Objeções</button>
+          <button class="drawer-tab-btn" id="tabBtnClosing" onclick="switchDrawerTab('tabClosing')">💰 Proposta & PIX</button>
+        </div>
+      </div>
+
+      <!-- ABA 1: BRIEFING & DIAGNÓSTICO -->
+      <div id="tabBriefing" class="drawer-tab-content active">
+        <div class="briefing-field">
+          <div class="briefing-label">Diagnóstico e Alertas</div>
+          <div class="briefing-val" id="modalDiagnosis">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Título da Página ({TITULO})</div>
+          <div class="briefing-val" id="modalTitle">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Subtítulo ({SUBTITULO})</div>
+          <div class="briefing-val" id="modalSubtitle">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Serviços em Destaque</div>
+          <div class="briefing-val" id="modalServices">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Briefing e Diferenciais</div>
+          <div class="briefing-val" id="modalHighlight">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Endereço e Horário</div>
+          <div class="briefing-val">
+            <div id="modalAddress" style="margin-bottom: 4px;">...</div>
+            <div id="modalHours" style="color: var(--text-secondary); font-size: 0.8rem;">...</div>
+          </div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Melhor Horário para Ligar</div>
+          <div class="briefing-val" id="modalBestTime" style="color: var(--color-gold-light);">...</div>
+        </div>
+      </div>
+
+      <!-- ABA 2: SCRIPTS DE CONTATO (WHATSAPP & LIGAÇÃO) -->
+      <div id="tabScripts" class="drawer-tab-content">
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>📞 1. Abordagem c/ Recepção (Secretária)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('recepcao')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptRecepcaoText">
+            "Olá, tudo bem? Meu nome é [Seu Nome]. Preparei uma prévia visual exclusiva da nova página online da [Nome da Clínica] com vídeo interativo para os pacientes de [Bairro]. Com quem falo na equipe do Dr(a) [Nome] para encaminhar a prévia de 10 segundos?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>💬 2. Abordagem Direta c/ o Dentista (Decisor)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('decisor')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptDecisorText">
+            "Olá Dr(a), tudo bem? Notei que a [Nome da Clínica] tem uma excelente reputação no Google em [Bairro], mas ainda não tem uma página moderna com foco em agendamentos particulares no WhatsApp. Montei uma prévia completa sem compromisso para você ver como ficaria: [Link]. O que achou?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>⏳ 3. Follow-up D+4 (Sem Resposta)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('followup4')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptFollowup4Text">
+            "Dr(a), tudo bem? Sei da correria dos atendimentos no consultório. Gravamos um vídeo de 10 segundos da sua prévia para facilitar a visualização sem precisar abrir links: [Link Vídeo]. Conseguiu dar uma olhada?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>🚨 4. Follow-up D+11 (Urgência & Desativação)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('followup11')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptFollowup11Text">
+            "Olá Dr(a)! Como não tivemos retorno, nosso servidor de testes irá desativar o subdomínio da [Nome da Clínica] nesta sexta-feira para liberar espaço para outros consultórios de [Bairro]. Se tiver interesse em manter no ar ou personalizar, me avise hoje até às 18h!"
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 3: MATADOR DE OBJEÇÕES -->
+      <div id="tabObjections" class="drawer-tab-content">
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 1: "Já temos Instagram ativo e funciona bem"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('instagram')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_instagram">
+            "Excelente, Dr(a)! O Instagram é ótimo para quem já está rolando o feed. Mas quando um paciente está com urgência ou dor de dente às 21h, ele pesquisa no Google: 'dentista [Bairro]'. Se sua clínica não tiver uma página rápida conectada ao WhatsApp, esse paciente vai direto para o consultório vizinho."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 2: "Está caro / Não tenho verba agora"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('caro')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_caro">
+            "Entendo perfeitamente. Mas veja sob a ótica de retorno: nosso plano Presença Local custa R$ 800 de entrada e R$ 497/mês. Um único implante, clareamento ou prótese que chegar pelo Google no mês já paga o ano inteiro da página. É um investimento que se autofinancia no primeiro paciente particular."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 3: "Preciso pensar / Fale comigo mês que vem"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('pensar')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_pensar">
+            "Com certeza, Dr(a). Como a prévia já está personalizada e pronta em nosso servidor temporário, posso mantê-la ativa até sexta-feira para você e sua equipe navegarem. Se fecharmos nesta semana, mantenho a taxa de implantação em R$ 800 com o domínio e a hospedagem já inclusos."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 4: "Meu sobrinho / conhecido faz para mim"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('conhecido')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_conhecido">
+            "Compreendo! A questão é que sites odontológicos precisam respeitar rigorosamente as normas éticas do CRO e CFO (sem fotos de antes/depois, com número de inscrição e RT visíveis). Além disso, configuramos o SEO local para São Paulo e damos manutenção contínua, sem sobrecarregar ninguém da sua família."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 5: "Não tenho tempo para criar conteúdo ou mexer nisso"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('tempo')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_tempo">
+            "Exatamente por isso que já entreguei a página 100% pronta! Você não precisa escrever textos nem escolher fotos. Eu fiz todo o briefing da [Nome da Clínica]. Só precisamos de 5 minutos para você validar se o telefone e endereço estão perfeitos e colocamos no ar em 24h."
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 4: PROPOSTA & PIX -->
+      <div id="tabClosing" class="drawer-tab-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 14px;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #34d399; text-transform: uppercase;">⭐ Plano Presença Local</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 4px 0;">R$ 800 <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);">+ R$ 497/mês</span></div>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; padding-left: 14px;">
+              <li>Landing page personalizada moderna</li>
+              <li>Otimização do Google Meu Negócio</li>
+              <li>SEO local para o bairro em São Paulo</li>
+              <li>Domínio próprio + Hospedagem segura</li>
+              <li>Manutenção ilimitada de textos e fotos</li>
+            </ul>
+          </div>
+
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: var(--radius-md); padding: 14px;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">Plano Essencial</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 4px 0;">R$ 1.000 <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);">+ R$ 197/mês</span></div>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; padding-left: 14px;">
+              <li>Landing page no ar e responsiva</li>
+              <li>Botão de WhatsApp direto</li>
+              <li>Hospedagem e SSL inclusos</li>
+              <li>Manutenção preventiva mensal</li>
+              <li>Suporte técnico dedicado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Mensagem Pronta de Envio de PIX e Contrato</span>
+            <button class="btn-copy-sm" onclick="copyClosingScript()">Copiar Mensagem</button>
+          </div>
+          <div class="objection-answer" id="closingScriptText">
+            "Excelente, Dr(a)! Para ativarmos a página definitiva da [Nome da Clínica] no seu domínio e conectarmos ao Google Meu Negócio, segue a chave PIX para a entrada de ativação:<br><br>
+            <strong>Chave PIX (CNPJ/E-mail):</strong> [SUA-CHAVE-PIX]<br>
+            <strong>Favorecido:</strong> [Seu Nome / Razão Social]<br><br>
+            Assim que confirmado, enviamos o link do termo de serviço e a página estará publicada e indexada em menos de 24 horas úteis!"
+          </div>
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--text-muted); background: #0b0e14; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle);">
+          ⚖️ <strong>Conformidade CFO:</strong> O template segue o Código de Ética Odontológica (Resolução CFO 196/2019): sem fotos de antes/depois de tratamentos, sem promessas de cura, com indicação do Responsável Técnico e CRO.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE REVISÃO DE SEXTA (30 MINUTOS & CONTINGÊNCIAS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="modal-card" style="max-width: 680px;">
+      <button class="modal-close-btn" onclick="closeReviewModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title">📊 Revisão de Sexta (30 Minutos)</h2>
+      <div class="modal-subtitle">Datas de revisão: <strong>16/10, 23/10, 30/10 e 06/11</strong> · Auditoria semanal da meta</div>
+
+      <div class="review-checklist">
+        <div class="review-step-item">
+          <div class="review-step-num">1</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Comparar o Caixa Acumulado com o Cronograma Semanal</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Meta total: <strong>R$ 20.000 em caixa + R$ 6.940 em MRR</strong> (20 clientes: 10 Presença Local + 10 Essencial). Verifique quanto entrou na semana.
+            </p>
+          </div>
+        </div>
+
+        <div class="review-step-item">
+          <div class="review-step-num">2</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Identificar o Gargalo da Semana</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Qual indicador está mais abaixo da meta? (Abordagens &lt; 20/dia, Decisor &lt; 30%, Resposta Positiva &lt; 15%, Mix PL &lt; 35% ou MRR &lt; 80% do previsto).
+            </p>
+          </div>
+        </div>
+
+        <div class="review-step-item">
+          <div class="review-step-num">3</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Escolher Uma Única Mudança para a Próxima Semana</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Foque em resolver apenas o gargalo principal usando as ações de contingência abaixo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-gold); margin: 20px 0 8px;">
+        🎯 Tabela de Referência do Autor vs. Metas
+      </h3>
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th>Meta Ideal</th>
+            <th>Sinal de Alerta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Abordagens por dia útil</td>
+            <td><strong>26/dia</strong></td>
+            <td style="color: #fca5a5;">Abaixo de 20 por 2 dias seguidos</td>
+          </tr>
+          <tr>
+            <td>Conversas com o decisor</td>
+            <td><strong>50%</strong> das abordagens</td>
+            <td style="color: #fca5a5;">Abaixo de 30%</td>
+          </tr>
+          <tr>
+            <td>Taxa de resposta positiva</td>
+            <td><strong>20%</strong></td>
+            <td style="color: #fca5a5;">Abaixo de 15%</td>
+          </tr>
+          <tr>
+            <td>Prévias e vídeos enviados em &lt; 24h</td>
+            <td><strong>100%</strong></td>
+            <td style="color: #fca5a5;">Qualquer prévia atrasada</td>
+          </tr>
+          <tr>
+            <td>Fechamento s/ respostas positivas</td>
+            <td><strong>20% a 30%</strong></td>
+            <td style="color: #fca5a5;">Abaixo de 12%</td>
+          </tr>
+          <tr>
+            <td>Mix no Presença Local</td>
+            <td><strong>50% das vendas</strong></td>
+            <td style="color: #fca5a5;">Abaixo de 35%</td>
+          </tr>
+          <tr>
+            <td>MRR ativo</td>
+            <td><strong>R$ 6.940/mês</strong></td>
+            <td style="color: #fca5a5;">Abaixo de 80% do previsto</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="lock-btn" onclick="closeReviewModal()" style="width: auto; padding: 10px 24px;">Concluir Revisão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE BACKUP E SINCRONIZAÇÃO DE DADOS
+       ==================================================================== -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-card" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="closeBackupModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title">💾 Backup & Sincronização</h2>
+      <div class="modal-subtitle">Exporte seu progresso para salvar ou trocar de dispositivo sem perder seus dados</div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <button class="btn-action btn-action-preview" onclick="exportDataJson()" style="padding: 8px 16px;">
+          📥 Baixar Backup (.json)
+        </button>
+        <button class="btn-action btn-action-briefing" onclick="copyBackupJson()" style="padding: 8px 16px;">
+          📋 Copiar JSON
+        </button>
+        <button class="btn-action btn-action-briefing" onclick="importDataJson()" style="padding: 8px 16px; background: #2563eb; color: #fff;">
+          📤 Restaurar / Importar
+        </button>
+      </div>
+
+      <textarea id="backupDataArea" class="backup-textarea" placeholder="Cole aqui o JSON de backup para restaurar seus dados..."></textarea>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+        <button onclick="resetAllProgress()" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+          ⚠️ Resetar todos os dados para o início
+        </button>
+        <button class="lock-btn" onclick="closeBackupModal()" style="width: auto; padding: 8px 20px;">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE VÍDEO DESKTOP (1920x1080 · SCROLLAGEM NORMAL)
+       ==================================================================== -->
+  <div class="modal-overlay" id="videoModal">
+    <div class="modal-card" style="max-width: 820px; text-align: center; padding: 24px 20px;">
+      <button class="modal-close-btn" onclick="closeVideoModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title" id="videoModalTitle" style="font-size: 1.25rem; margin-bottom: 4px;">Vídeo Desktop (10s)</h2>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+        1920x1080 Full HD · Scrollagem natural da landing page
+      </p>
+
+      <div style="width: 100%; aspect-ratio: 16 / 9; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); border: 1px solid var(--border-subtle);">
+        <video id="videoPlayer" controls autoplay loop playsinline style="width: 100%; height: 100%; object-fit: contain;">
+          <source src="" type="video/mp4">
+          Seu navegador não suporta reprodução de vídeo.
+        </video>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <a id="videoDownloadBtn" href="" download class="btn-action btn-action-preview" style="padding: 10px 22px; font-size: 0.9rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          <span>Baixar Vídeo Desktop (.mp4)</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div class="toast-notice" id="toastNotice">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toastMsg">Link copiado com sucesso!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/clinicas-data.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
