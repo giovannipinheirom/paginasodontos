@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (header) {
     window.addEventListener('scroll', () => {
       if (window.scrollY > 40) {
-        header.style.backgroundColor = 'rgba(10, 14, 20, 0.98)';
-        header.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+        header.style.backgroundColor = 'rgba(7, 7, 9, 0.98)';
+        header.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.6)';
       } else {
-        header.style.backgroundColor = 'rgba(10, 14, 20, 0.94)';
+        header.style.backgroundColor = 'rgba(7, 7, 9, 0.95)';
         header.style.boxShadow = 'none';
       }
     });
@@ -70,8 +70,8 @@ function initScrollReveal() {
       }
     });
   }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -40px 0px'
+    threshold: 0.05,
+    rootMargin: '0px 0px 40px 0px'
   });
 
   elements.forEach((el, index) => {
