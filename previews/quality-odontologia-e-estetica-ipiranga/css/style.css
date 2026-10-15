@@ -1363,3 +1363,17 @@ button {
     color: #fff;
   }
 }
+
+/* --- ANIMAÇÕES DE SCROLL REVEAL SUAVE (100% DAS PRÉVIAS) --- */
+.reveal,
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-active {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}

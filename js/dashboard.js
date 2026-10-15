@@ -33,6 +33,7 @@ let currentFilter = "todos";
 let searchQuery = "";
 let currentActiveView = "list"; // 'list' ou 'kanban'
 let currentDrawerClinicId = null;
+let currentCustomClinicId = null;
 let draggedClinicId = null;
 
 // --- INICIALIZAÇÃO DO SISTEMA ---
@@ -47,13 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
   restoreSavedView();
 });
 
-// Sincroniza status das prévias (as 64 modernas já geradas no disco)
+// Sincroniza status das prévias (todas as 500 clínicas dos 3 templates liberadas)
 function syncGeneratedState() {
-  const saved = JSON.parse(localStorage.getItem("odonto_geradas") || "[]");
   CLINICAS_DATA.forEach(c => {
-    if (c.template.toLowerCase() === "moderno" || saved.includes(c.id)) {
-      c.status = "pronta";
-    }
+    c.status = "pronta";
   });
 }
 
@@ -313,6 +311,11 @@ function restoreSavedView() {
   switchView(saved);
 }
 
+// Verifica se uma clínica já tem personalização salva
+function hasCustomPreview(clinicId) {
+  return !!localStorage.getItem("odonto_custom_" + clinicId);
+}
+
 // --- VISUALIZAÇÃO 1: RENDERIZAÇÃO DA LISTA DE CARDS ---
 function renderClinics() {
   const container = document.getElementById("clinicsGrid");
@@ -341,6 +344,7 @@ function renderClinics() {
     const statusClass = isReady ? "pronta" : "pendente";
     const statusText = isReady ? "Prévia Pronta" : "Aguardando Geração";
     const hasVideo = VIDEOS_GERADOS_INICIAIS.includes(c.id);
+    const isCustomized = hasCustomPreview(c.id);
     const templateClass = c.template.toLowerCase();
     const currentStageKey = getClinicStage(c.id);
 
@@ -388,6 +392,10 @@ function renderClinics() {
       ? `<span class="status-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); margin-left: 6px;">🎬 Vídeo 1080p Pronto</span>`
       : "";
 
+    const customBadgeHtml = isCustomized
+      ? `<span class="status-badge" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); margin-left: 6px;">✨ Fotos & Avaliações Editadas</span>`
+      : "";
+
     // Opções de estágio do Kanban
     let stageOptions = KANBAN_STAGES.map(s => 
       `<option value="${s.key}" ${s.key === currentStageKey ? 'selected' : ''}>${s.title}</option>`
@@ -414,6 +422,7 @@ function renderClinics() {
       <div style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
         <span class="status-badge ${statusClass}">● ${statusText}</span>
         ${videoBadgeHtml}
+        ${customBadgeHtml}
       </div>
 
       <!-- Caixa do Subdomínio Oficial -->
@@ -446,6 +455,13 @@ function renderClinics() {
 
       <div class="card-actions">
         ${actionButtons}
+        
+        <!-- Botão de Personalização de Fotos & Avaliações Reais -->
+        <button class="btn-action" style="grid-column: span 2; background: #0f172a; border: 1px solid var(--color-gold); color: var(--color-gold-light);" onclick="openCustomizeModal('${c.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          <span>✏️ Mudar Fotos & 3 Avaliações Reais</span>
+        </button>
+
         <button class="btn-action btn-action-briefing" onclick="openBriefingModal('${c.id}')">
           <span>Gaveta de Vendas (Scripts & Objeções)</span>
         </button>
@@ -509,6 +525,7 @@ function renderKanban() {
 
       const isReady = c.status === "pronta";
       const hasVideo = VIDEOS_GERADOS_INICIAIS.includes(c.id);
+      const isCustomized = hasCustomPreview(c.id);
       const waLink = `https://wa.me/${c.telefoneFormatado}?text=${encodeURIComponent(c.scriptAbordagem || '')}`;
 
       let stageOptions = KANBAN_STAGES.map(s => 
@@ -532,6 +549,7 @@ function renderKanban() {
         <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;">
           ${hasVideo ? '<span style="font-size: 0.65rem; color: #c084fc; font-weight: 700;">🎬 Vídeo Pronto</span>' : ''}
           ${isReady ? '<span style="font-size: 0.65rem; color: #34d399; font-weight: 700;">● Prévia Pronta</span>' : ''}
+          ${isCustomized ? '<span style="font-size: 0.65rem; color: #facc15; font-weight: 700;">✨ Fotos/Reviews Editadas</span>' : ''}
         </div>
 
         <div class="kanban-card-actions">
@@ -541,6 +559,7 @@ function renderKanban() {
           ${isReady 
             ? `<a href="${c.caminhoLocal}" target="_blank" rel="noopener noreferrer" class="btn-kanban-sm" title="Ver prévia online">Prévia</a>`
             : `<button class="btn-kanban-sm" onclick="handleGeneratePreview('${c.id}')" title="Gerar prévia">⚡ Gerar</button>`}
+          <button class="btn-kanban-sm" style="color: var(--color-gold);" onclick="openCustomizeModal('${c.id}')" title="Mudar fotos e 3 avaliações">✏️ Fotos</button>
           <button class="btn-kanban-sm" onclick="openBriefingModal('${c.id}')" title="Abrir gaveta de vendas">Scripts</button>
         </div>
 
@@ -583,23 +602,11 @@ function handleDrop(e, targetStageKey) {
   draggedClinicId = null;
 }
 
-// --- GERAÇÃO DE PRÉVIA EM 1 CLIQUE COM TRAVA DE SEGURANÇA ---
+// --- GERAÇÃO DE PRÉVIA EM 1 CLIQUE (TODOS OS 3 TEMPLATES LIBERADOS) ---
 function handleGeneratePreview(clinicId) {
   const clinic = CLINICAS_DATA.find(c => c.id === clinicId);
   if (!clinic) return;
 
-  // 1. REGRA: SE NÃO FOR MODERNO, DISPARA ERRO!
-  if (clinic.template.toLowerCase() !== "moderno") {
-    openAlertModal(
-      `Template "${clinic.template}" Indisponível`,
-      `A clínica <strong>${clinic.nome}</strong> (Ranking #${clinic.ranking} - ${clinic.bairro}) está marcada para usar o modelo <strong>${clinic.template}</strong>.<br><br>
-       ❌ <strong>O modelo "${clinic.template}" ainda não foi construído.</strong><br><br>
-       Atualmente, apenas clínicas com o <strong>Template Moderno</strong> podem ter suas prévias geradas. Assim que finalizarmos o template ${clinic.template}, essa opção será liberada!`
-    );
-    return;
-  }
-
-  // 2. SE FOR MODERNO: GERAÇÃO COM SUCESSO
   clinic.status = "pronta";
 
   // Salva no localStorage para persistência
@@ -794,6 +801,193 @@ function copyClosingScript() {
   showToast("💰 Proposta e dados PIX copiados!");
 }
 
+// ==========================================================================
+// --- MÓDULO DE PERSONALIZAÇÃO DE PRÉVIA (AVALIAÇÕES & FOTOS) ---
+// ==========================================================================
+
+function openCustomizeModal(clinicId) {
+  const clinic = CLINICAS_DATA.find(c => c.id === clinicId);
+  if (!clinic) return;
+
+  currentCustomClinicId = clinicId;
+  const modal = document.getElementById("customizeModal");
+  document.getElementById("custClinicTitle").textContent = `Personalizar: ${clinic.nome}`;
+  document.getElementById("custClinicSub").textContent = `Subdomínio: https://${clinic.subdominio} · Bairro: ${clinic.bairro}`;
+
+  // Tenta carregar dados já personalizados salvos
+  const savedRaw = localStorage.getItem("odonto_custom_" + clinicId);
+  let custom = null;
+  if (savedRaw) {
+    try { custom = JSON.parse(savedRaw); } catch(e) {}
+  }
+
+  // Preenche Avaliações (se houver salvas, usa as salvas; senão, sugere defaults com nome da clínica e bairro)
+  const defaultReviews = [
+    {
+      name: "Mariana Silva",
+      stars: "5",
+      text: `Atendimento impecável desde a recepção até o consultório em ${clinic.bairro}. O cuidado e a explicação clara de cada etapa me deixaram muito segura!`
+    },
+    {
+      name: "Rodrigo Ferreira",
+      stars: "5",
+      text: `Ambiente super moderno, pontualidade exemplar e equipe atenciosa. O resultado do tratamento na ${clinic.nome} superou minhas expectativas.`
+    },
+    {
+      name: "Camila Pereira",
+      stars: "5",
+      text: `Excelente estrutura e profissionais extremamente cuidadosos e humanos. Recomendo para toda a família em ${clinic.bairro}!`
+    }
+  ];
+
+  const reviewsToLoad = (custom && custom.reviews && custom.reviews.length === 3) 
+    ? custom.reviews 
+    : defaultReviews;
+
+  reviewsToLoad.forEach((rev, idx) => {
+    const num = idx + 1;
+    document.getElementById(`custRevName${num}`).value = rev.name || "";
+    document.getElementById(`custRevStars${num}`).value = rev.stars || "5";
+    document.getElementById(`custRevText${num}`).value = rev.text || "";
+  });
+
+  // Preenche Fotos (se houver salvas, usa as salvas; senão, se clinic tem fotoPrincipal, sugere no Hero)
+  const defaultHero = (custom && custom.fotoHero) 
+    ? custom.fotoHero 
+    : (clinic.fotoPrincipal || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=800&q=80");
+  const defaultSobre = (custom && custom.fotoSobre) 
+    ? custom.fotoSobre 
+    : "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80";
+  const defaultTech = (custom && custom.fotoTech) 
+    ? custom.fotoTech 
+    : "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80";
+
+  document.getElementById("custHeroUrl").value = defaultHero;
+  document.getElementById("custSobreUrl").value = defaultSobre;
+  document.getElementById("custTechUrl").value = defaultTech;
+
+  updateThumb("custHeroUrl", "custHeroThumb");
+  updateThumb("custSobreUrl", "custSobreThumb");
+  updateThumb("custTechUrl", "custTechThumb");
+
+  modal.classList.add("active");
+}
+
+function closeCustomizeModal() {
+  const modal = document.getElementById("customizeModal");
+  if (modal) modal.classList.remove("active");
+}
+
+// Manipulação de Upload de Imagem do PC para DataURL
+function handleImageUpload(e, inputTargetId, thumbTargetId) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 3 * 1024 * 1024) {
+    alert("Para melhor desempenho, selecione uma foto de até 3MB.");
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    document.getElementById(inputTargetId).value = dataUrl;
+    updateThumb(inputTargetId, thumbTargetId);
+    showToast("📷 Foto carregada do dispositivo!");
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateThumb(inputTargetId, thumbTargetId) {
+  const inputEl = document.getElementById(inputTargetId);
+  const thumbEl = document.getElementById(thumbTargetId);
+  if (!inputEl || !thumbEl) return;
+  const val = inputEl.value.trim();
+  if (val) {
+    thumbEl.src = val;
+    thumbEl.style.display = "block";
+  } else {
+    thumbEl.style.display = "none";
+  }
+}
+
+// Salvar personalizações e emitir / abrir a prévia
+function saveAndRegeneratePreview() {
+  const clinic = CLINICAS_DATA.find(c => c.id === currentCustomClinicId);
+  if (!clinic) return;
+
+  const reviews = [
+    {
+      name: document.getElementById("custRevName1").value.trim() || "Mariana Silva",
+      stars: document.getElementById("custRevStars1").value,
+      text: document.getElementById("custRevText1").value.trim()
+    },
+    {
+      name: document.getElementById("custRevName2").value.trim() || "Rodrigo Ferreira",
+      stars: document.getElementById("custRevStars2").value,
+      text: document.getElementById("custRevText2").value.trim()
+    },
+    {
+      name: document.getElementById("custRevName3").value.trim() || "Camila Pereira",
+      stars: document.getElementById("custRevStars3").value,
+      text: document.getElementById("custRevText3").value.trim()
+    }
+  ];
+
+  const fotoHero = document.getElementById("custHeroUrl").value.trim();
+  const fotoSobre = document.getElementById("custSobreUrl").value.trim();
+  const fotoTech = document.getElementById("custTechUrl").value.trim();
+
+  const customData = {
+    clinicId: clinic.id,
+    updatedAt: new Date().toISOString(),
+    reviews,
+    fotoHero,
+    fotoSobre,
+    fotoTech
+  };
+
+  // Salva no localStorage compartilhado
+  localStorage.setItem("odonto_custom_" + clinic.id, JSON.stringify(customData));
+
+  // Marca status da clínica como pronta
+  clinic.status = "pronta";
+  const savedGeradas = JSON.parse(localStorage.getItem("odonto_geradas") || "[]");
+  if (!savedGeradas.includes(clinic.id)) {
+    savedGeradas.push(clinic.id);
+    localStorage.setItem("odonto_geradas", JSON.stringify(savedGeradas));
+  }
+
+  // Se estava em backlog, move para "enviada"
+  const currentStage = getClinicStage(clinic.id);
+  if (currentStage === "backlog") {
+    setClinicStage(clinic.id, "enviada", true);
+  }
+
+  closeCustomizeModal();
+  showToast(`⚡ Prévia de ${clinic.nome} regerada com fotos e 3 avaliações reais!`);
+
+  renderKPIs();
+  if (currentActiveView === "kanban") {
+    renderKanban();
+  } else {
+    renderClinics();
+  }
+
+  // Abre a prévia atualizada em nova aba
+  window.open(clinic.caminhoLocal, "_blank");
+}
+
+function resetCustomPreview() {
+  if (!currentCustomClinicId) return;
+  if (confirm("Deseja restaurar as avaliações e fotos para o modelo padrão?")) {
+    localStorage.removeItem("odonto_custom_" + currentCustomClinicId);
+    showToast("🔄 Padrões restaurados.");
+    openCustomizeModal(currentCustomClinicId); // Recarrega
+    renderClinics();
+    if (currentActiveView === "kanban") renderKanban();
+  }
+}
+
 // --- MODAL DE REVISÃO DE SEXTA (30 MINUTOS) ---
 function openReviewModal() {
   const modal = document.getElementById("reviewModal");
@@ -810,11 +1004,21 @@ function openBackupModal() {
   const modal = document.getElementById("backupModal");
   const area = document.getElementById("backupDataArea");
 
+  // Coleta todas as personalizações salvas de fotos e avaliações
+  const customPreviews = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith("odonto_custom_")) {
+      customPreviews[key] = localStorage.getItem(key);
+    }
+  }
+
   const bundle = {
     exportDate: new Date().toISOString(),
     stages: JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}"),
     geradas: JSON.parse(localStorage.getItem("odonto_geradas") || "[]"),
-    dailyContacts: JSON.parse(localStorage.getItem("odonto_daily_contacts") || "{}")
+    dailyContacts: JSON.parse(localStorage.getItem("odonto_daily_contacts") || "{}"),
+    customPreviews
   };
 
   area.value = JSON.stringify(bundle, null, 2);
@@ -855,6 +1059,13 @@ function importDataJson() {
     if (data.stages) localStorage.setItem("odonto_kanban_stages", JSON.stringify(data.stages));
     if (data.geradas) localStorage.setItem("odonto_geradas", JSON.stringify(data.geradas));
     if (data.dailyContacts) localStorage.setItem("odonto_daily_contacts", JSON.stringify(data.dailyContacts));
+
+    // Restaura personalizações de fotos e avaliações
+    if (data.customPreviews) {
+      Object.keys(data.customPreviews).forEach(k => {
+        localStorage.setItem(k, data.customPreviews[k]);
+      });
+    }
 
     syncGeneratedState();
     renderKPIs();
@@ -950,12 +1161,14 @@ function showToast(message) {
 // Fechamento de modais clicando fora
 window.addEventListener("click", (e) => {
   const briefingModal = document.getElementById("briefingModal");
+  const customizeModal = document.getElementById("customizeModal");
   const alertModal = document.getElementById("alertModal");
   const videoModal = document.getElementById("videoModal");
   const reviewModal = document.getElementById("reviewModal");
   const backupModal = document.getElementById("backupModal");
 
   if (e.target === briefingModal) closeBriefingModal();
+  if (e.target === customizeModal) closeCustomizeModal();
   if (e.target === alertModal) closeAlertModal();
   if (e.target === videoModal) closeVideoModal();
   if (e.target === reviewModal) closeReviewModal();

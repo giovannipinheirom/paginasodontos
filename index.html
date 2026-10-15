@@ -594,6 +594,153 @@
   </div>
 
   <!-- ====================================================================
+       MODAL DE PERSONALIZAÇÃO DE PRÉVIA: FOTOS E 3 AVALIAÇÕES REAIS
+       ==================================================================== -->
+  <div class="modal-overlay" id="customizeModal">
+    <div class="modal-card customizer-card">
+      <button class="modal-close-btn" onclick="closeCustomizeModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="font-size: 1.3rem;">🎨</span>
+          <h2 class="modal-title" id="custClinicTitle" style="margin-bottom: 0;">Personalizar Prévia</h2>
+          <span class="badge-template moderno" id="custTemplateBadge">MODERNO</span>
+        </div>
+        <div class="modal-subtitle" id="custClinicSub" style="margin-bottom: 0;">Substitua as fotos e insira 3 avaliações reais do Google antes de emitir</div>
+      </div>
+
+      <!-- SEÇÃO 1: 3 AVALIAÇÕES REAIS DO GOOGLE -->
+      <div class="customizer-section">
+        <div class="customizer-section-title">
+          <span>⭐ 3 Avaliações Reais de Pacientes (Google Meu Negócio)</span>
+        </div>
+        <p class="customizer-section-desc">
+          Insira 3 depoimentos reais retirados do Google da clínica. Eles substituirão automaticamente os depoimentos padrão na seção de avaliações da página.
+        </p>
+
+        <div class="customizer-reviews-grid">
+          <!-- Avaliação 1 -->
+          <div class="custom-review-box">
+            <label>Avaliação 1</label>
+            <input type="text" id="custRevName1" class="custom-input" placeholder="Nome do Paciente (ex: Mariana S.)">
+            <select id="custRevStars1" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText1" class="custom-textarea" placeholder="Cole o depoimento real da paciente..."></textarea>
+          </div>
+
+          <!-- Avaliação 2 -->
+          <div class="custom-review-box">
+            <label>Avaliação 2</label>
+            <input type="text" id="custRevName2" class="custom-input" placeholder="Nome do Paciente (ex: Rodrigo F.)">
+            <select id="custRevStars2" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText2" class="custom-textarea" placeholder="Cole o depoimento real..."></textarea>
+          </div>
+
+          <!-- Avaliação 3 -->
+          <div class="custom-review-box">
+            <label>Avaliação 3</label>
+            <input type="text" id="custRevName3" class="custom-input" placeholder="Nome do Paciente (ex: Camila P.)">
+            <select id="custRevStars3" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText3" class="custom-textarea" placeholder="Cole o depoimento real..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: SUBSTITUIÇÃO DAS FOTOS DA PRÉVIA (IMGS) -->
+      <div class="customizer-section">
+        <div class="customizer-section-title">
+          <span>🖼️ Substituir Fotos da Página (Imagens Reais da Clínica)</span>
+        </div>
+        <p class="customizer-section-desc">
+          Cole a URL da foto (Google Maps / Instagram) ou envie uma foto do seu computador. A prévia substituirá as fotos padrão instantaneamente.
+        </p>
+
+        <!-- Foto 1: Hero Principal (Arco) -->
+        <div class="custom-photo-row">
+          <div class="custom-photo-label">
+            Foto do Topo (Hero)
+            <small>Moldura em arco principal</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custHeroUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custHeroUrl', 'custHeroThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custHeroFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custHeroUrl', 'custHeroThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custHeroThumb" class="thumb-preview" src="" alt="Hero Preview">
+          </div>
+        </div>
+
+        <!-- Foto 2: Sobre a Clínica -->
+        <div class="custom-photo-row">
+          <div class="custom-photo-label">
+            Foto do Consultório
+            <small>Seção Sobre a Clínica</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custSobreUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custSobreUrl', 'custSobreThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custSobreFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custSobreUrl', 'custSobreThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custSobreThumb" class="thumb-preview" src="" alt="Sobre Preview">
+          </div>
+        </div>
+
+        <!-- Foto 3: Tecnologia & Equipamentos -->
+        <div class="custom-photo-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+          <div class="custom-photo-label">
+            Foto de Tecnologia
+            <small>Consultório & Equipamentos</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custTechUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custTechUrl', 'custTechThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custTechFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custTechUrl', 'custTechThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custTechThumb" class="thumb-preview" src="" alt="Tech Preview">
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <button type="button" class="btn-lock" onclick="resetCustomPreview()" style="border-color: #ef4444; color: #fca5a5;" title="Voltar para as fotos e avaliações padrão do template">
+          Restaurar Padrão
+        </button>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-lock" onclick="closeCustomizeModal()">
+            Cancelar
+          </button>
+          <button type="button" class="lock-btn" onclick="saveAndRegeneratePreview()" style="width: auto; padding: 10px 24px; background: linear-gradient(135deg, #dfcaab 0%, #c5a880 100%); color: #0b0e14; font-weight: 800;">
+            ⚡ Salvar & Emitir Prévia Atualizada
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
        MODAL DE VÍDEO DESKTOP (1920x1080 · SCROLLAGEM NORMAL)
        ==================================================================== -->
   <div class="modal-overlay" id="videoModal">
