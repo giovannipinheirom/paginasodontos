@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>OdontoWebsites Hub · Catálogo Privado de Prévias</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="css/dashboard.css">
@@ -415,7 +415,7 @@
 
       <!-- ABA 4: PROPOSTA & PIX -->
       <div id="tabClosing" class="drawer-tab-content">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+        <div class="proposal-cards-grid">
           <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 14px;">
             <div style="font-size: 0.75rem; font-weight: 800; color: #34d399; text-transform: uppercase;">⭐ Plano Presença Local</div>
             <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 4px 0;">R$ 800 <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);">+ R$ 497/mês</span></div>
@@ -506,52 +506,54 @@
       <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-gold); margin: 20px 0 8px;">
         🎯 Tabela de Referência do Autor vs. Metas
       </h3>
-      <table class="review-table">
-        <thead>
-          <tr>
-            <th>Indicador</th>
-            <th>Meta Ideal</th>
-            <th>Sinal de Alerta</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Abordagens por dia útil</td>
-            <td><strong>26/dia</strong></td>
-            <td style="color: #fca5a5;">Abaixo de 20 por 2 dias seguidos</td>
-          </tr>
-          <tr>
-            <td>Conversas com o decisor</td>
-            <td><strong>50%</strong> das abordagens</td>
-            <td style="color: #fca5a5;">Abaixo de 30%</td>
-          </tr>
-          <tr>
-            <td>Taxa de resposta positiva</td>
-            <td><strong>20%</strong></td>
-            <td style="color: #fca5a5;">Abaixo de 15%</td>
-          </tr>
-          <tr>
-            <td>Prévias e vídeos enviados em &lt; 24h</td>
-            <td><strong>100%</strong></td>
-            <td style="color: #fca5a5;">Qualquer prévia atrasada</td>
-          </tr>
-          <tr>
-            <td>Fechamento s/ respostas positivas</td>
-            <td><strong>20% a 30%</strong></td>
-            <td style="color: #fca5a5;">Abaixo de 12%</td>
-          </tr>
-          <tr>
-            <td>Mix no Presença Local</td>
-            <td><strong>50% das vendas</strong></td>
-            <td style="color: #fca5a5;">Abaixo de 35%</td>
-          </tr>
-          <tr>
-            <td>MRR ativo</td>
-            <td><strong>R$ 6.940/mês</strong></td>
-            <td style="color: #fca5a5;">Abaixo de 80% do previsto</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="review-table">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Meta Ideal</th>
+              <th>Sinal de Alerta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Abordagens por dia útil</td>
+              <td><strong>26/dia</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 20 por 2 dias seguidos</td>
+            </tr>
+            <tr>
+              <td>Conversas com o decisor</td>
+              <td><strong>50%</strong> das abordagens</td>
+              <td style="color: #fca5a5;">Abaixo de 30%</td>
+            </tr>
+            <tr>
+              <td>Taxa de resposta positiva</td>
+              <td><strong>20%</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 15%</td>
+            </tr>
+            <tr>
+              <td>Prévias e vídeos enviados em &lt; 24h</td>
+              <td><strong>100%</strong></td>
+              <td style="color: #fca5a5;">Qualquer prévia atrasada</td>
+            </tr>
+            <tr>
+              <td>Fechamento s/ respostas positivas</td>
+              <td><strong>20% a 30%</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 12%</td>
+            </tr>
+            <tr>
+              <td>Mix no Presença Local</td>
+              <td><strong>50% das vendas</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 35%</td>
+            </tr>
+            <tr>
+              <td>MRR ativo</td>
+              <td><strong>R$ 6.940/mês</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 80% do previsto</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div style="margin-top: 20px; text-align: right;">
         <button class="lock-btn" onclick="closeReviewModal()" style="width: auto; padding: 10px 24px;">Concluir Revisão</button>
@@ -722,7 +724,7 @@
       </div>
 
       <!-- BOTÕES DE AÇÃO -->
-      <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <div class="customizer-footer-actions">
         <button type="button" class="btn-lock" onclick="resetCustomPreview()" style="border-color: #ef4444; color: #fca5a5;" title="Voltar para as fotos e avaliações padrão do template">
           Restaurar Padrão
         </button>
