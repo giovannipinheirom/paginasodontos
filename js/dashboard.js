@@ -15,17 +15,17 @@ const VIDEOS_GERADOS_INICIAIS = (typeof window !== "undefined" && Array.isArray(
       "m-v-odontologia-e-estetica-jardim-reimberg"
     ];
 
-// As 9 etapas oficiais do funil de vendas odontológico
+// As 9 etapas oficiais do funil de abordagem odontológico (Seção 6)
 const KANBAN_STAGES = [
-  { key: "backlog", title: "📋 A Abordar", color: "#64748b" },
-  { key: "recepcao", title: "📞 Recepção", color: "#f59e0b" },
-  { key: "decisor", title: "💬 Decisor", color: "#38bdf8" },
-  { key: "enviada", title: "🚀 Prévia Enviada", color: "#818cf8" },
-  { key: "followup", title: "⏳ Follow-up (D+4/11)", color: "#fb923c" },
-  { key: "reuniao", title: "📅 Reunião (10-15m)", color: "#c084fc" },
-  { key: "fechado_pl", title: "🟢 Fechado: Presença Local", color: "#10b981" },
-  { key: "fechado_es", title: "🟢 Fechado: Essencial", color: "#059669" },
-  { key: "arquivado", title: "🔴 Arquivado", color: "#ef4444" }
+  { key: "novo", title: "📋 A Contatar", color: "#64748b" },
+  { key: "recepcao_contatada", title: "📞 Recepção Contatada", color: "#f59e0b" },
+  { key: "falando_dentista", title: "💬 Falando com Dentista", color: "#38bdf8" },
+  { key: "pergunta_enviada", title: "❓ Pergunta Enviada", color: "#818cf8" },
+  { key: "video_oferecido", title: "🎬 Vídeo Oferecido", color: "#a855f7" },
+  { key: "previa_enviada", title: "🚀 Prévia Enviada", color: "#fb923c" },
+  { key: "ligacao_marcada", title: "📅 Ligação Marcada", color: "#c084fc" },
+  { key: "fechado", title: "🟢 Fechado", color: "#10b981" },
+  { key: "encerrado", title: "⚪ Encerrado", color: "#475569" }
 ];
 
 let currentFilteredList = [];
@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   syncGeneratedState();
   initSavedStages();
   renderKPIs();
+  updateTodayPriorityWidget();
   applyFilters();
   setupFilters();
   setupSearch();
@@ -62,11 +63,11 @@ function initSavedStages() {
   const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
   CLINICAS_DATA.forEach(c => {
     if (!stages[c.id]) {
-      // Se já está no disco com vídeo gerado e é camada A, pré-define como 'enviada' se novo
-      if (VIDEOS_GERADOS_INICIAIS.includes(c.id)) {
-        stages[c.id] = "enviada";
+      if (typeof ApproachEngine !== "undefined") {
+        const appData = ApproachEngine.getClinicApproachData(c.id, c);
+        stages[c.id] = appData.etapa || "novo";
       } else {
-        stages[c.id] = "backlog";
+        stages[c.id] = VIDEOS_GERADOS_INICIAIS.includes(c.id) ? "previa_enviada" : "novo";
       }
     }
   });
@@ -74,22 +75,40 @@ function initSavedStages() {
 }
 
 function getClinicStage(clinicId) {
+  if (typeof ApproachEngine !== "undefined") {
+    const appData = ApproachEngine.getClinicApproachData(clinicId);
+    if (appData && appData.etapa) {
+      return appData.etapa;
+    }
+  }
   const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
-  return stages[clinicId] || "backlog";
+  const raw = stages[clinicId] || "novo";
+  if (raw === "backlog") return "novo";
+  if (raw === "recepcao") return "recepcao_contatada";
+  if (raw === "decisor") return "falando_dentista";
+  if (raw === "enviada" || raw === "followup") return "previa_enviada";
+  if (raw === "reuniao") return "ligacao_marcada";
+  if (raw.startsWith("fechado")) return "fechado";
+  if (raw === "arquivado") return "encerrado";
+  return raw;
 }
 
 function setClinicStage(clinicId, newStage, silent = false) {
+  if (typeof ApproachEngine !== "undefined") {
+    ApproachEngine.saveClinicApproachData(clinicId, { etapa: newStage });
+  }
   const stages = JSON.parse(localStorage.getItem("odonto_kanban_stages") || "{}");
-  const oldStage = stages[clinicId] || "backlog";
+  const oldStage = stages[clinicId] || "novo";
   stages[clinicId] = newStage;
   localStorage.setItem("odonto_kanban_stages", JSON.stringify(stages));
 
-  // Se passou de backlog para qualquer estágio ativo e não registrou abordagem hoje, incrementa
-  if (oldStage === "backlog" && newStage !== "backlog" && newStage !== "arquivado") {
+  // Se passou de novo/backlog para qualquer estágio ativo e não registrou abordagem hoje, incrementa
+  if ((oldStage === "novo" || oldStage === "backlog") && newStage !== "novo" && newStage !== "backlog" && newStage !== "encerrado" && newStage !== "arquivado") {
     incrementTodayContact(true);
   }
 
   renderKPIs();
+  updateTodayPriorityWidget();
   if (currentActiveView === "kanban") {
     renderKanban();
   } else {
@@ -350,8 +369,43 @@ function renderClinics() {
     const templateClass = c.template.toLowerCase();
     const currentStageKey = getClinicStage(c.id);
 
-    // Link WhatsApp
-    const waLink = `https://wa.me/${c.telefoneFormatado}?text=${encodeURIComponent(c.scriptAbordagem || '')}`;
+    // Abordagem Dinâmica (Novo Padrão)
+    const approachRes = (typeof ApproachEngine !== "undefined")
+      ? ApproachEngine.generateApproachActions(c)
+      : null;
+
+    const recommendedAction = approachRes ? approachRes.recommendedAction : null;
+    const isFixedPhone = approachRes ? !approachRes.temWhatsapp : false;
+
+    // Botão Principal Dinâmico
+    let primaryActionBtn = "";
+    if (isFixedPhone) {
+      primaryActionBtn = `
+        <button class="btn-action" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);" onclick="openApproachModal('${c.id}', 'A')" title="Telefone fixo: ligue primeiro e peça o WhatsApp do(a) dentista">
+          <span>📞 Roteiro de Ligação</span>
+        </button>
+      `;
+    } else if (recommendedAction) {
+      const isDue = recommendedAction.isDue;
+      const dueClass = isDue ? "due-highlight" : "";
+      primaryActionBtn = `
+        <button class="btn-action ${dueClass}" style="background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3);" onclick="openApproachModal('${c.id}', '${recommendedAction.id}')" title="${recommendedAction.label}">
+          <span>${recommendedAction.icon} [${recommendedAction.id}] ${recommendedAction.label}</span>
+        </button>
+      `;
+    } else {
+      primaryActionBtn = `
+        <button class="btn-action" style="background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3);" onclick="openApproachModal('${c.id}')">
+          <span>💬 Abordagem</span>
+        </button>
+      `;
+    }
+
+    const hubBtn = `
+      <button class="btn-action btn-action-hub" onclick="openApproachModal('${c.id}')" title="Abrir cockpit completo de abordagem e mensagens">
+        <span>⚡ Abordagem</span>
+      </button>
+    `;
 
     // Ações do Card
     let actionButtons = "";
@@ -373,12 +427,13 @@ function renderClinics() {
           </svg>
         </a>
 
-        <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-action btn-action-whatsapp">
-          <span>WhatsApp</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
-          </svg>
-        </a>
+        ${primaryActionBtn}
+
+        ${hubBtn}
+
+        <button class="btn-action" style="background: var(--bg-surface-alt); color: var(--text-secondary);" onclick="openBriefingModal('${c.id}')" title="Ver briefing completo">
+          <span>📋 Briefing</span>
+        </button>
 
         ${videoBtn}
       `;
@@ -387,6 +442,7 @@ function renderClinics() {
         <button class="btn-action btn-action-generate" onclick="handleGeneratePreview('${c.id}')">
           <span>⚡ Gerar Prévia</span>
         </button>
+        ${hubBtn}
       `;
     }
 
@@ -528,7 +584,10 @@ function renderKanban() {
       const isReady = c.status === "pronta";
       const hasVideo = VIDEOS_GERADOS_INICIAIS.includes(c.id);
       const isCustomized = hasCustomPreview(c.id);
-      const waLink = `https://wa.me/${c.telefoneFormatado}?text=${encodeURIComponent(c.scriptAbordagem || '')}`;
+      const isFixo = (typeof CLINICAS_EXTRA !== "undefined" && CLINICAS_EXTRA[c.id] && CLINICAS_EXTRA[c.id].tw === "não");
+      const approachBtn = isFixo
+        ? `<button class="btn-kanban-sm" style="color: #f87171; font-weight: 700;" onclick="openApproachModal('${c.id}', 'A')" title="Telefone fixo: ligar primeiro">📞 Roteiro</button>`
+        : `<button class="btn-kanban-sm" style="color: #25d366; font-weight: 700;" onclick="openApproachModal('${c.id}')" title="Abrir painel de abordagem e mensagens">⚡ Abordagem</button>`;
 
       let stageOptions = KANBAN_STAGES.map(s => 
         `<option value="${s.key}" ${s.key === stage.key ? 'selected' : ''}>${s.title}</option>`
@@ -555,9 +614,7 @@ function renderKanban() {
         </div>
 
         <div class="kanban-card-actions">
-          <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-kanban-sm" style="color: #25d366;" title="Abrir WhatsApp">
-            WhatsApp
-          </a>
+          ${approachBtn}
           ${isReady 
             ? `<a href="${c.caminhoLocal}" target="_blank" rel="noopener noreferrer" class="btn-kanban-sm" title="Ver prévia online">Prévia</a>`
             : `<button class="btn-kanban-sm" onclick="handleGeneratePreview('${c.id}')" title="Gerar prévia">⚡ Gerar</button>`}
@@ -661,6 +718,35 @@ function applyFilters() {
       c.ranking.toString() === q ||
       c.telefone.includes(q)
     );
+  }
+
+  // Filtros do Widget "Hoje"
+  if (currentApproachFilter && typeof ApproachEngine !== "undefined") {
+    filtered = filtered.filter(c => {
+      const appData = ApproachEngine.getClinicApproachData(c.id, c);
+      const etapa = appData.etapa || "novo";
+      const dias = ApproachEngine.getDaysSinceContact(appData.dataUltimoContato);
+
+      if (currentApproachFilter === "d4") {
+        return etapa === "previa_enviada" && dias !== null && dias >= 4 && dias < 11;
+      }
+      if (currentApproachFilter === "d11") {
+        return etapa === "previa_enviada" && dias !== null && dias >= 11;
+      }
+      if (currentApproachFilter === "call") {
+        return etapa === "ligacao_marcada";
+      }
+      if (currentApproachFilter === "waiting") {
+        return ["pergunta_enviada", "video_oferecido"].includes(etapa);
+      }
+      if (currentApproachFilter === "hoje") {
+        const isD4 = etapa === "previa_enviada" && dias !== null && dias >= 4;
+        const isCall = etapa === "ligacao_marcada";
+        const isWaiting = ["pergunta_enviada", "video_oferecido"].includes(etapa);
+        return isD4 || isCall || isWaiting;
+      }
+      return true;
+    });
   }
 
   currentFilteredList = filtered;
@@ -1205,4 +1291,394 @@ window.addEventListener("click", (e) => {
   if (e.target === reviewModal) closeReviewModal();
   if (e.target === backupModal) closeBackupModal();
   if (e.target === batchVideosModal) closeBatchVideosModal();
+  const approachModal = document.getElementById("approachModal");
+  if (e.target === approachModal) closeApproachModal();
 });
+
+// ============================================================================
+// CONTROLADOR DO COCKPIT DE ABORDAGEM & GERAÇÃO DE MENSAGENS (NOVO PADRÃO)
+// ============================================================================
+let currentApproachClinic = null;
+let currentApproachState = null;
+let currentApproachActionId = "B";
+
+function openApproachModal(clinicId, preselectActionId = null) {
+  const c = CLINICAS_DATA.find(item => item.id === clinicId);
+  if (!c) return;
+
+  currentApproachClinic = c;
+  currentApproachState = ApproachEngine.getClinicApproachData(c.id, c);
+
+  const modal = document.getElementById("approachModal");
+  if (!modal) return;
+
+  // Atualiza cabeçalho
+  const cData = ApproachEngine.resolveClinicData(c);
+  document.getElementById("appModalClinicName").textContent = cData.nomeClinica;
+  document.getElementById("appModalBairro").textContent = `📍 ${cData.bairro}`;
+  document.getElementById("appModalNota").textContent = `⭐ ${cData.nota} (${cData.avaliacoes} avaliações)`;
+  document.getElementById("appModalTelefone").textContent = `📞 ${cData.telefone}`;
+
+  const isFixo = cData.temWhatsapp !== "sim";
+  const badgeWa = document.getElementById("appModalWhatsappBadge");
+  if (isFixo) {
+    badgeWa.innerHTML = `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 8px; border-radius: 4px; font-weight: 700;">⚠️ Telefone Fixo (Sem WhatsApp)</span>`;
+  } else {
+    badgeWa.innerHTML = `<span style="background: rgba(37, 211, 102, 0.2); color: #25d366; padding: 2px 8px; border-radius: 4px; font-weight: 700;">🟢 WhatsApp Ativo</span>`;
+  }
+
+  // Ações de prévia no cabeçalho
+  const previaActions = document.getElementById("appModalPreviaActions");
+  const isReady = c.status === "pronta";
+  previaActions.innerHTML = isReady 
+    ? `<a href="${c.caminhoLocal}" target="_blank" rel="noopener noreferrer" class="btn-action-sm" style="background: rgba(197, 168, 128, 0.15); color: var(--color-gold); border: 1px solid rgba(197, 168, 128, 0.3); padding: 5px 10px; border-radius: 4px; font-size: 0.78rem; text-decoration: none;">Ver Prévia ↗</a>`
+    : `<button class="btn-action-sm" onclick="handleGeneratePreview('${c.id}'); setTimeout(() => openApproachModal('${c.id}'), 500);" style="background: #eab308; color: #000; padding: 5px 10px; border-radius: 4px; font-size: 0.78rem; font-weight: 700;">⚡ Gerar Prévia</button>`;
+
+  // Popula dropdown de ângulos
+  const selectAngulo = document.getElementById("appSelectAngulo");
+  selectAngulo.innerHTML = Object.entries(ApproachEngine.ANGLE_TYPES).map(([k, label]) => 
+    `<option value="${label}" ${label === currentApproachState.tipoAngulo ? "selected" : ""}>${label}</option>`
+  ).join("");
+
+  // Popula dropdown de etapas
+  const selectEtapa = document.getElementById("appSelectEtapa");
+  selectEtapa.innerHTML = ApproachEngine.APPROACH_STAGES.map(s => 
+    `<option value="${s.key}" ${s.key === currentApproachState.etapa ? "selected" : ""}>${s.icon} ${s.title}</option>`
+  ).join("");
+
+  // Atualiza campos de entrada
+  document.getElementById("appInputNomeDecisor").value = currentApproachState.nomeDecisor || "";
+  document.getElementById("appInputTratamento").value = currentApproachState.tratamento || "doutor(a)";
+  document.getElementById("appInputNomeRecepcao").value = currentApproachState.nomeRecepcao || "";
+  document.getElementById("appInputRespostaDor").value = currentApproachState.respostaDor || "";
+  document.getElementById("appInputObs").value = currentApproachState.obs || "";
+
+  // Atualiza botões de falando com
+  updateFalandoComButtons(currentApproachState.falandoCom);
+
+  // Determina ação pré-selecionada
+  const result = ApproachEngine.generateApproachActions(c, currentApproachState);
+  currentApproachActionId = preselectActionId || result.recommendedKey || "B";
+
+  refreshApproachModalUI();
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeApproachModal() {
+  const modal = document.getElementById("approachModal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+  document.body.style.overflow = "";
+  currentApproachClinic = null;
+  currentApproachState = null;
+}
+
+function updateFalandoComButtons(falandoCom) {
+  const btnRecepcao = document.getElementById("btnFalandoRecepcao");
+  const btnDentista = document.getElementById("btnFalandoDentista");
+  if (!btnRecepcao || !btnDentista) return;
+
+  if (falandoCom === "dentista") {
+    btnDentista.style.background = "#38bdf8";
+    btnDentista.style.color = "#000";
+    btnDentista.style.fontWeight = "800";
+    btnRecepcao.style.background = "var(--bg-surface)";
+    btnRecepcao.style.color = "var(--text-secondary)";
+    btnRecepcao.style.fontWeight = "normal";
+  } else {
+    btnRecepcao.style.background = "#f59e0b";
+    btnRecepcao.style.color = "#000";
+    btnRecepcao.style.fontWeight = "800";
+    btnDentista.style.background = "var(--bg-surface)";
+    btnDentista.style.color = "var(--text-secondary)";
+    btnDentista.style.fontWeight = "normal";
+  }
+}
+
+function setApproachFalandoCom(tipo) {
+  if (!currentApproachState || !currentApproachClinic) return;
+  currentApproachState.falandoCom = tipo;
+  ApproachEngine.saveClinicApproachData(currentApproachClinic.id, { falandoCom: tipo });
+  updateFalandoComButtons(tipo);
+  
+  // Recomenda ação de acordo com quem está falando
+  if (tipo === "dentista" && currentApproachActionId === "B") {
+    currentApproachActionId = "C";
+  } else if (tipo === "recepção" && currentApproachActionId === "C") {
+    currentApproachActionId = "B";
+  }
+  refreshApproachModalUI();
+}
+
+function updateApproachField(field, value) {
+  if (!currentApproachState || !currentApproachClinic) return;
+  currentApproachState[field] = value;
+  const patch = {};
+  patch[field] = value;
+  ApproachEngine.saveClinicApproachData(currentApproachClinic.id, patch);
+  refreshApproachModalUI();
+}
+
+function setApproachEtapa(etapaKey) {
+  if (!currentApproachState || !currentApproachClinic) return;
+  setClinicStage(currentApproachClinic.id, etapaKey, false);
+  currentApproachState.etapa = etapaKey;
+  
+  // Atualiza ação recomendada para a nova etapa
+  const cData = ApproachEngine.resolveClinicData(currentApproachClinic);
+  const nextKey = ApproachEngine.getRecommendedActionKey(etapaKey, currentApproachState, cData);
+  if (nextKey) {
+    currentApproachActionId = nextKey;
+  }
+  refreshApproachModalUI();
+}
+
+function selectApproachAction(actionId) {
+  currentApproachActionId = actionId;
+  refreshApproachModalUI();
+}
+
+function refreshApproachModalUI() {
+  if (!currentApproachClinic || !currentApproachState) return;
+
+  const result = ApproachEngine.generateApproachActions(currentApproachClinic, currentApproachState);
+  const actions = result.actions;
+  const currentAction = actions.find(a => a.id === currentApproachActionId) || actions[0];
+
+  // Atualiza estado visual de cada botão [A] até [K]
+  actions.forEach(a => {
+    const btn = document.getElementById(`btnApp_${a.id}`);
+    if (btn) {
+      btn.classList.toggle("active", a.id === currentApproachActionId);
+      btn.classList.toggle("due-highlight", !!a.isDue);
+      btn.disabled = !!a.disabled;
+      if (a.disabledReason) {
+        btn.title = a.disabledReason;
+      } else {
+        btn.title = a.label;
+      }
+    }
+  });
+
+  // Atualiza badge de etapa recomendada
+  const stageBadge = document.getElementById("appActiveStageBadge");
+  if (stageBadge) {
+    const recAction = result.recommendedAction;
+    stageBadge.innerHTML = recAction 
+      ? `Recomendado agora: <strong>[${recAction.id}] ${recAction.label}</strong>`
+      : "";
+  }
+
+  // Atualiza caixa de alerta contextual
+  const contextAlert = document.getElementById("appContextAlert");
+  if (result.temWhatsapp === false) {
+    contextAlert.style.display = "block";
+    contextAlert.style.background = "rgba(239, 68, 68, 0.15)";
+    contextAlert.style.border = "1px solid rgba(239, 68, 68, 0.4)";
+    contextAlert.style.color = "#fca5a5";
+    contextAlert.innerHTML = `⚠️ <strong>Telefone fixo detectado:</strong> Ligue primeiro usando o roteiro [A] e peça o WhatsApp direto do(a) dentista.`;
+  } else if (currentAction.id === "G") {
+    contextAlert.style.display = "block";
+    contextAlert.style.background = "rgba(168, 85, 247, 0.15)";
+    contextAlert.style.border = "1px solid rgba(168, 85, 247, 0.4)";
+    contextAlert.style.color = "#d8b4fe";
+    contextAlert.innerHTML = `🎬 <strong>Lembrete importante:</strong> Anexe o vídeo de 10 segundos no WhatsApp antes de enviar o link da prévia.`;
+  } else if (currentAction.id === "H" && currentAction.objecaoPreco) {
+    contextAlert.style.display = "block";
+    contextAlert.style.background = "rgba(56, 189, 248, 0.15)";
+    contextAlert.style.border = "1px solid rgba(56, 189, 248, 0.4)";
+    contextAlert.style.color = "#7dd3fc";
+    contextAlert.innerHTML = `🛡️ <strong>Se perguntar o preço por mensagem:</strong> <em>"${currentAction.objecaoPreco}"</em>`;
+  } else {
+    contextAlert.style.display = "none";
+  }
+
+  // Atualiza textarea de prévia da mensagem
+  const textarea = document.getElementById("appMessagePreview");
+  textarea.value = currentAction.text;
+
+  // Atualiza contador de palavras
+  const words = currentAction.text.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById("appWordCount").textContent = `${words} palavras`;
+
+  // Atualiza botão de WhatsApp
+  const btnWa = document.getElementById("btnAppWhatsapp");
+  const isWhatsApp = currentAction.isWhatsApp && !currentAction.disabled;
+  if (isWhatsApp && result.temWhatsapp) {
+    btnWa.style.display = "inline-flex";
+    btnWa.href = `https://wa.me/${result.clinic.telefoneFormatado}?text=${encodeURIComponent(currentAction.text)}`;
+  } else {
+    btnWa.style.display = "none";
+  }
+
+  // Atualiza data do último contato
+  const lastContactInfo = document.getElementById("appLastContactInfo");
+  if (currentApproachState.dataUltimoContato) {
+    const d = new Date(currentApproachState.dataUltimoContato);
+    lastContactInfo.textContent = `Último contato: ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  } else {
+    lastContactInfo.textContent = "Último contato: Nunca";
+  }
+}
+
+function copyApproachMessage() {
+  const textarea = document.getElementById("appMessagePreview");
+  if (!textarea) return;
+
+  const textToCopy = textarea.value;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    showToast("📋 Mensagem copiada para a área de transferência!");
+    recordApproachDispatch();
+  }).catch(() => {
+    textarea.select();
+    document.execCommand("copy");
+    showToast("📋 Mensagem copiada!");
+    recordApproachDispatch();
+  });
+}
+
+function handleApproachWhatsappClick(e) {
+  const textarea = document.getElementById("appMessagePreview");
+  if (textarea && currentApproachClinic) {
+    const cData = ApproachEngine.resolveClinicData(currentApproachClinic);
+    const textEncoded = encodeURIComponent(textarea.value);
+    const link = `https://wa.me/${cData.telefoneFormatado}?text=${textEncoded}`;
+    e.currentTarget.href = link;
+  }
+  recordApproachDispatch();
+}
+
+function recordApproachDispatch() {
+  if (!currentApproachClinic || !currentApproachState) return;
+
+  const nowIso = new Date().toISOString();
+  currentApproachState.dataUltimoContato = nowIso;
+
+  const result = ApproachEngine.generateApproachActions(currentApproachClinic, currentApproachState);
+  const currentAction = result.actions.find(a => a.id === currentApproachActionId);
+
+  const patch = { dataUltimoContato: nowIso };
+
+  // Se a ação tiver nextStage sugerida, avança
+  if (currentAction && currentAction.nextStage) {
+    patch.etapa = currentAction.nextStage;
+    currentApproachState.etapa = currentAction.nextStage;
+    setClinicStage(currentApproachClinic.id, currentAction.nextStage, true);
+  } else {
+    ApproachEngine.saveClinicApproachData(currentApproachClinic.id, patch);
+  }
+
+  showToast(`⚡ Ação [${currentApproachActionId}] registrada com sucesso!`);
+  refreshApproachModalUI();
+  updateTodayPriorityWidget();
+}
+
+// ============================================================================
+// CONTROLLER DO WIDGET "HOJE" & PRIORIDADES
+// ============================================================================
+let currentApproachFilter = null;
+
+function updateTodayPriorityWidget() {
+  if (typeof ApproachEngine === "undefined" || !CLINICAS_DATA) return;
+
+  let countD4 = 0;
+  let countD11 = 0;
+  let countCalls = 0;
+  let countWaiting = 0;
+  const priorityClinics = [];
+
+  CLINICAS_DATA.forEach(c => {
+    const appData = ApproachEngine.getClinicApproachData(c.id, c);
+    const etapa = appData.etapa || "novo";
+    const dias = ApproachEngine.getDaysSinceContact(appData.dataUltimoContato);
+
+    let isPriority = false;
+    let badgeType = "";
+
+    if (etapa === "previa_enviada" && dias !== null && dias >= 11) {
+      countD11++;
+      isPriority = true;
+      badgeType = "d11";
+    } else if (etapa === "previa_enviada" && dias !== null && dias >= 4) {
+      countD4++;
+      isPriority = true;
+      badgeType = "d4";
+    } else if (etapa === "ligacao_marcada") {
+      countCalls++;
+      isPriority = true;
+      badgeType = "call";
+    } else if (["pergunta_enviada", "video_oferecido"].includes(etapa)) {
+      countWaiting++;
+      isPriority = true;
+      badgeType = "waiting";
+    }
+
+    if (isPriority) {
+      priorityClinics.push({ clinic: c, badgeType, appData });
+    }
+  });
+
+  const elD4 = document.getElementById("countD4");
+  const elD11 = document.getElementById("countD11");
+  const elCalls = document.getElementById("countCalls");
+  const elWaiting = document.getElementById("countWaiting");
+  const elTotal = document.getElementById("todayTotalBadge");
+  const listContainer = document.getElementById("todayPriorityList");
+
+  if (elD4) elD4.textContent = countD4;
+  if (elD11) elD11.textContent = countD11;
+  if (elCalls) elCalls.textContent = countCalls;
+  if (elWaiting) elWaiting.textContent = countWaiting;
+
+  const total = countD4 + countD11 + countCalls + countWaiting;
+  if (elTotal) elTotal.textContent = `${total} prioridades`;
+
+  if (listContainer) {
+    if (priorityClinics.length === 0) {
+      listContainer.innerHTML = `<span style="padding: 4px 8px; color: var(--text-muted);">Nenhuma pendência prioritária hoje. Você está em dia!</span>`;
+    } else {
+      listContainer.innerHTML = priorityClinics.slice(0, 10).map(item => {
+        let tagColor = "#38bdf8";
+        let tagText = "Aguardando";
+        if (item.badgeType === "d4") { tagColor = "#fb923c"; tagText = "D+4 Vencido"; }
+        if (item.badgeType === "d11") { tagColor = "#ef4444"; tagText = "D+11 Despedida"; }
+        if (item.badgeType === "call") { tagColor = "#c084fc"; tagText = "Ligação Marcada"; }
+
+        return `
+          <div onclick="openApproachModal('${item.clinic.id}')" style="cursor: pointer; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;">
+            <span style="color: ${tagColor}; font-weight: 700; font-size: 0.72rem;">${tagText}</span>
+            <span style="color: #fff; font-weight: 600;">${item.clinic.nome}</span>
+            <span style="color: var(--text-muted); font-size: 0.7rem;">(${item.clinic.bairro})</span>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+}
+
+function setApproachFilter(filterType) {
+  currentApproachFilter = (currentApproachFilter === filterType) ? null : filterType;
+  
+  // Atualiza botões
+  const btnHoje = document.getElementById("btnFilterHoje");
+  const btnD4 = document.getElementById("btnFilterFollowup4");
+  const btnD11 = document.getElementById("btnFilterFollowup11");
+  const btnCalls = document.getElementById("btnFilterCalls");
+  const btnWaiting = document.getElementById("btnFilterWaiting");
+
+  [btnHoje, btnD4, btnD11, btnCalls, btnWaiting].forEach(btn => {
+    if (btn) btn.classList.remove("active");
+  });
+
+  if (currentApproachFilter === "hoje" && btnHoje) btnHoje.classList.add("active");
+  if (currentApproachFilter === "d4" && btnD4) btnD4.classList.add("active");
+  if (currentApproachFilter === "d11" && btnD11) btnD11.classList.add("active");
+  if (currentApproachFilter === "call" && btnCalls) btnCalls.classList.add("active");
+  if (currentApproachFilter === "waiting" && btnWaiting) btnWaiting.classList.add("active");
+
+  applyFilters();
+}
+

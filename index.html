@@ -187,6 +187,37 @@
         </div>
         <button class="btn-copy-sm" onclick="openReviewModal()">Ver Contingências</button>
       </div>
+
+      <!-- Widget "Hoje" - Prioridades de Abordagem & Follow-up -->
+      <div class="today-priority-widget" id="todayPriorityWidget" style="margin-top: 14px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(197, 168, 128, 0.3); border-radius: var(--radius-md); padding: 14px 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.1rem;">🔥</span>
+            <span style="font-weight: 800; font-size: 0.95rem; color: #fff;">Lista Prioritária de Hoje</span>
+            <span class="status-badge" id="todayTotalBadge" style="background: rgba(197, 168, 128, 0.2); color: var(--color-gold); font-weight: 700;">0 pendências</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="filter-pill" id="btnFilterHoje" onclick="setApproachFilter('hoje')" style="border-color: var(--color-gold); color: var(--color-gold);">
+              ⚡ Ver Clínicas de Hoje
+            </button>
+            <button class="filter-pill" id="btnFilterFollowup4" onclick="setApproachFilter('d4')" style="border-color: #fb923c; color: #fb923c;">
+              ⏳ D+4 Vencidos (<span id="countD4">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterFollowup11" onclick="setApproachFilter('d11')" style="border-color: #ef4444; color: #ef4444;">
+              🚨 D+11 Despedida (<span id="countD11">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterCalls" onclick="setApproachFilter('call')" style="border-color: #c084fc; color: #c084fc;">
+              📅 Ligações (<span id="countCalls">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterWaiting" onclick="setApproachFilter('waiting')" style="border-color: #38bdf8; color: #38bdf8;">
+              💬 Aguardando Retorno (<span id="countWaiting">0</span>)
+            </button>
+          </div>
+        </div>
+        <div id="todayPriorityList" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; font-size: 0.8rem; color: var(--text-secondary);">
+          <!-- Itens prioritários renderizados dinamicamente -->
+        </div>
+      </div>
     </section>
 
     <!-- Barra de Busca e Filtros -->
@@ -254,6 +285,174 @@
       <button class="lock-btn" onclick="closeAlertModal()" style="background: #ef4444; color: #fff; margin-top: 10px;">
         Entendido
       </button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE ABORDAGEM & CRM COCKPIT (NOVO PADRÃO DE MENSAGENS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="approachModal">
+    <div class="modal-card" style="max-width: 820px; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close-btn" onclick="closeApproachModal()" aria-label="Fechar">&times;</button>
+      
+      <!-- Cabeçalho da Clínica -->
+      <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <h2 class="modal-title" id="appModalClinicName" style="font-size: 1.3rem; margin-bottom: 4px;">Nome da Clínica</h2>
+            <div id="appModalClinicMeta" style="font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 12px; flex-wrap: wrap;">
+              <span id="appModalBairro">📍 Bairro</span>
+              <span id="appModalNota">⭐ 5,0 (0)</span>
+              <span id="appModalTelefone">📞 Telefone</span>
+              <span id="appModalWhatsappBadge">🟢 WhatsApp</span>
+            </div>
+          </div>
+          <div id="appModalPreviaActions" style="display: flex; gap: 8px;">
+            <!-- Botão Ver Prévia / Gerar Prévia -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuração Rápida do Prospect (Campos Novos da Seção 2) -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--color-gold); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+          ⚙️ Dados da Abordagem & Contato
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+          <!-- Falando com -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Falando com:</label>
+            <div style="display: flex; gap: 4px;">
+              <button type="button" class="btn-copy-sm" id="btnFalandoRecepcao" onclick="setApproachFalandoCom('recepção')" style="flex: 1; padding: 6px;">📞 Recepção</button>
+              <button type="button" class="btn-copy-sm" id="btnFalandoDentista" onclick="setApproachFalandoCom('dentista')" style="flex: 1; padding: 6px;">👨‍⚕️ Dentista</button>
+            </div>
+          </div>
+
+          <!-- Decisor & Tratamento -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Dentista Decisor:</label>
+            <div style="display: flex; gap: 4px;">
+              <select id="appInputTratamento" onchange="updateApproachField('tratamento', this.value)" style="background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 6px; font-size: 0.8rem;">
+                <option value="doutor(a)">doutor(a)</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Dra.">Dra.</option>
+              </select>
+              <input type="text" id="appInputNomeDecisor" placeholder="Nome do dentista" oninput="updateApproachField('nomeDecisor', this.value)" style="flex: 1; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;">
+            </div>
+          </div>
+
+          <!-- Nome Recepção -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Nome na Recepção (opcional):</label>
+            <input type="text" id="appInputNomeRecepcao" placeholder="Ex: Camila" oninput="updateApproachField('nomeRecepcao', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;">
+          </div>
+
+          <!-- Ângulo de Dor -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Ângulo da Abordagem:</label>
+            <select id="appSelectAngulo" onchange="updateApproachField('tipoAngulo', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 5px 8px; font-size: 0.78rem;">
+              <!-- 11 Opções -->
+            </select>
+          </div>
+
+          <!-- Etapa do Funil -->
+          <div style="grid-column: 1 / -1;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Etapa no Funil:</label>
+            <select id="appSelectEtapa" onchange="setApproachEtapa(this.value)" style="width: 100%; background: var(--bg-surface); color: var(--color-gold); font-weight: 700; border: 1px solid rgba(197, 168, 128, 0.4); border-radius: 4px; padding: 6px 10px; font-size: 0.82rem;">
+              <!-- 9 Etapas -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Navegação dos Botões de Ação [A] a [K] -->
+      <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <span>🎯 Escolha a Mensagem / Script:</span>
+          <span id="appActiveStageBadge" style="font-size: 0.72rem; color: var(--color-gold); font-weight: normal;"></span>
+        </div>
+
+        <!-- Grupo de Botões Organizados em 4 Categorias -->
+        <div class="approach-buttons-container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 1. Primeiro Contato -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">1. 1º Contato:</span>
+            <button class="btn-action-approach" id="btnApp_A" onclick="selectApproachAction('A')">📞 [A] Roteiro Ligação</button>
+            <button class="btn-action-approach" id="btnApp_B" onclick="selectApproachAction('B')">💬 [B] Recepção</button>
+            <button class="btn-action-approach" id="btnApp_C" onclick="selectApproachAction('C')">❓ [C] Pergunta Dentista</button>
+            <button class="btn-action-approach" id="btnApp_C2" onclick="selectApproachAction('C2')">📱 [C2] Pedir Contato</button>
+          </div>
+
+          <!-- 2. Respostas & Objeções -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">2. Respostas:</span>
+            <button class="btn-action-approach" id="btnApp_D" onclick="selectApproachAction('D')">🎯 [D] Confirmou Dor (Vídeo 10s)</button>
+            <button class="btn-action-approach" id="btnApp_E" onclick="selectApproachAction('E')">⚠️ [E] Dado Errado</button>
+            <button class="btn-action-approach" id="btnApp_F" onclick="selectApproachAction('F')">🤝 [F] Só Indicação / Não Preciso</button>
+          </div>
+
+          <!-- 3. Apresentação & Fechamento -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">3. Fechamento:</span>
+            <button class="btn-action-approach" id="btnApp_G" onclick="selectApproachAction('G')">🎬 [G] Enviar Vídeo e Prévia</button>
+            <button class="btn-action-approach" id="btnApp_H" onclick="selectApproachAction('H')">⏱️ [H] Pedir Call 10m</button>
+            <button class="btn-action-approach" id="btnApp_I" onclick="selectApproachAction('I')">🤝 [I] Pós-Ligação</button>
+          </div>
+
+          <!-- 4. Follow-up -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">4. Follow-up:</span>
+            <button class="btn-action-approach" id="btnApp_J" onclick="selectApproachAction('J')">⏳ [J] Follow-up D+4</button>
+            <button class="btn-action-approach" id="btnApp_K" onclick="selectApproachAction('K')">👋 [K] D+11 (Despedida)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caixa de Aviso / Instruções Contextuais -->
+      <div id="appContextAlert" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 12px; line-height: 1.4;">
+        <!-- Alertas dinâmicos: aviso de fixo, lembrete de anexo de vídeo, etc. -->
+      </div>
+
+      <!-- Caixa Editável de Prévia da Mensagem -->
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="font-size: 0.78rem; font-weight: 700; color: #fff;">
+            📝 Mensagem / Roteiro (Editável antes de enviar):
+          </label>
+          <span id="appWordCount" style="font-size: 0.72rem; color: var(--text-secondary);">0 palavras</span>
+        </div>
+        <textarea id="appMessagePreview" rows="6" style="width: 100%; background: #0f172a; color: #f8fafc; border: 1px solid rgba(197, 168, 128, 0.4); border-radius: var(--radius-md); padding: 12px; font-size: 0.88rem; line-height: 1.5; resize: vertical;"></textarea>
+      </div>
+
+      <!-- Barra de Ação de Disparo: Copiar e Abrir no WhatsApp -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="lock-btn" id="btnAppCopy" onclick="copyApproachMessage()" style="background: var(--bg-surface-alt); border: 1px solid var(--border-color); color: #fff; padding: 8px 16px; font-size: 0.85rem;">
+            📋 Copiar Texto
+          </button>
+          <a id="btnAppWhatsapp" href="#" target="_blank" rel="noopener noreferrer" class="lock-btn" onclick="handleApproachWhatsappClick(event)" style="background: #25d366; color: #fff; padding: 8px 18px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+            </svg>
+            <span>Abrir no WhatsApp</span>
+          </a>
+        </div>
+        <div id="appLastContactInfo" style="font-size: 0.75rem; color: var(--text-secondary);">
+          Último contato: Nunca
+        </div>
+      </div>
+
+      <!-- Bloco de CRM Rápido: Resposta da Dor & Observações -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">🎯 Resposta da Dor (o que a clínica disse):</label>
+          <input type="text" id="appInputRespostaDor" placeholder="Ex: 'Sim, atendemos 24h mas noite é fraca'" onchange="updateApproachField('respostaDor', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 8px; font-size: 0.8rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">📝 Anotações & Observações livres:</label>
+          <input type="text" id="appInputObs" placeholder="Ex: 'Doutor prefere ligar na terça às 10h'" onchange="updateApproachField('obs', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 8px; font-size: 0.8rem;">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -873,7 +1072,9 @@
 
   <!-- Scripts -->
   <script src="js/videos-list.js"></script>
+  <script src="js/clinicas-extra.js"></script>
   <script src="js/clinicas-data.js"></script>
+  <script src="js/approach-engine.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>
