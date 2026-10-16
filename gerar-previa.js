@@ -70,6 +70,63 @@ for (const [key, cfg] of Object.entries(TEMPLATES_CONFIG)) {
 }
 
 /**
+ * Formata o título do hero de forma limpa e harmônica em 2 linhas,
+ * evitando qualquer duplicação de bairro (ex: "em Guaianases em Guaianases").
+ */
+function formatHeroTitle(titulo, bairro) {
+  if (!titulo) {
+    return `Excelência odontológica <br><span class="highlight">em ${bairro || 'São Paulo'}.</span>`;
+  }
+  const cleanT = titulo.trim().replace(/\.+$/, '');
+  const b = (bairro || '').trim();
+
+  if (b) {
+    const escapedB = b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // 1. Se o título já termina com "em/na/no/de <Bairro>"
+    const regexEnd = new RegExp('(.*?)\\s+(em|na|no|de)\\s+' + escapedB + '$', 'i');
+    const matchEnd = cleanT.match(regexEnd);
+    if (matchEnd && matchEnd[1].trim()) {
+      const parte1 = matchEnd[1].trim();
+      const prep = matchEnd[2].toLowerCase();
+      return `${parte1} <br><span class="highlight">${prep} ${b}.</span>`;
+    }
+
+    // 2. Se o título contém "em/na/no/de <Bairro>" com complemento depois (ex: ", com planejamento")
+    const regexMid = new RegExp('(.*?)\\s+(em|na|no|de)\\s+' + escapedB + '(.*)$', 'i');
+    const matchMid = cleanT.match(regexMid);
+    if (matchMid && matchMid[1].trim()) {
+      const parte1 = matchMid[1].trim();
+      const prep = matchMid[2].toLowerCase();
+      const resto = matchMid[3].trim();
+      const sep = resto.startsWith(',') ? '' : ' ';
+      return `${parte1} <br><span class="highlight">${prep} ${b}${resto ? sep + resto : ''}.</span>`;
+    }
+  }
+
+  // 3. Se possui vírgula, usa a vírgula como ponto de quebra
+  if (cleanT.includes(',')) {
+    const idx = cleanT.lastIndexOf(',');
+    const p1 = cleanT.slice(0, idx).trim();
+    const p2 = cleanT.slice(idx + 1).trim();
+    if (p1 && p2) {
+      return `${p1} <br><span class="highlight">${p2}.</span>`;
+    }
+  }
+
+  // 4. Se não tem preposição de bairro nem vírgula, quebra suavemente na metade das palavras
+  const words = cleanT.split(/\s+/);
+  if (words.length > 3) {
+    const half = Math.ceil(words.length / 2);
+    const p1 = words.slice(0, half).join(' ');
+    const p2 = words.slice(half).join(' ');
+    return `${p1} <br><span class="highlight">${p2}.</span>`;
+  }
+
+  return `<span class="highlight">${cleanT}.</span>`;
+}
+
+/**
  * Gera fisicamente no disco a prévia completa para uma clínica
  */
 function gerarPreviaParaClinica(clinic, silent = false) {
@@ -96,18 +153,19 @@ function gerarPreviaParaClinica(clinic, silent = false) {
   // Título e Metatags
   html = html.replace(/<title>.*?<\/title>/, `<title>${clinic.NOME_CLINICA} | ${clinic.TITULO || clinic.NOME_CLINICA}</title>`);
   
-  // Nome da clínica
-  html = html.replace(/Belo Sorriso/g, clinic.NOME_CLINICA);
+  // Nome da clínica (substitui primeiro a expressão mais longa para não duplicar "Odontologia")
   html = html.replace(/Belo Sorriso Odontologia/g, clinic.NOME_CLINICA);
+  html = html.replace(/Belo Sorriso/g, clinic.NOME_CLINICA);
+  html = html.replace(/Odontologia Odontologia/g, 'Odontologia');
 
   // Bairro
   if (clinic.BAIRRO) {
     html = html.replace(/Vila Albano/g, clinic.BAIRRO);
   }
 
-  // Título e Subtítulo
+  // Título e Subtítulo (sem duplicações)
   if (clinic.TITULO) {
-    const heroTitleHtml = `${clinic.TITULO.replace(/\./g, '')} <br><span class="highlight">em ${clinic.BAIRRO || 'São Paulo'}.</span>`;
+    const heroTitleHtml = formatHeroTitle(clinic.TITULO, clinic.BAIRRO);
     html = html.replace(/<h1 class="hero-title">[\s\S]*?<\/h1>/, `<h1 class="hero-title">\n            ${heroTitleHtml}\n          </h1>`);
   }
 

@@ -7,8 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function runTests() {
-  console.log('🧪 Iniciando Testes End-to-End dos 3 Templates e Hub...');
-  const browser = await chromium.launch({ headless: true });
+  const executablePath = process.env.CHROMIUM_PATH || (fs.existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : undefined);
+  const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -51,6 +51,7 @@ async function runTests() {
 
     const profHeroHeading = await page.locator('.hero-title').textContent();
     assert(profHeroHeading.includes('Guaianases'), `Profissional: Heading personalizado presente ("${profHeroHeading.trim().replace(/\s+/g, ' ')}")`);
+    assert(!profHeroHeading.includes('Guaianases em Guaianases'), 'Profissional: Sem duplicação de bairro no heading');
 
     const profChecklistCount = await page.locator('.specialist-checklist li').count();
     assert(profChecklistCount >= 4, `Profissional: Checklist do especialista tem ${profChecklistCount} itens`);
@@ -71,6 +72,7 @@ async function runTests() {
 
     const amiHeroHeading = await page.locator('.hero-title').textContent();
     assert(amiHeroHeading.includes('São Mateus'), `Amigável: Heading personalizado presente ("${amiHeroHeading.trim().replace(/\s+/g, ' ')}")`);
+    assert(!amiHeroHeading.includes('São Mateus em São Mateus'), 'Amigável: Sem duplicação de bairro no heading');
 
     const amiStatsCount = await page.locator('.stat-item').count();
     assert(amiStatsCount === 4, `Amigável: 4 métricas de confiança no hero`);
@@ -92,6 +94,7 @@ async function runTests() {
 
     const modTitle = await page.title();
     assert(modTitle.includes('Belo Sorriso Odontologia'), `Moderno: Título correto ("${modTitle}")`);
+    assert(!modTitle.includes('Odontologia Odontologia'), 'Moderno: Sem duplicação de "Odontologia"');
 
     // 5. Teste de Scroll Reveal Animation
     const revealElements = await page.locator('.reveal-on-scroll').count();

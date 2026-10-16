@@ -70,8 +70,9 @@
           <span>📊 Revisão de Sexta</span>
         </button>
 
-        <button onclick="openBackupModal()" class="btn-lock" style="border-color: #a78bfa; color: #a78bfa;" title="Exportar e importar dados salvos">
-          <span>💾 Backup</span>
+        <button onclick="openBatchVideosModal()" class="btn-lock" style="border-color: #a855f7; color: #d8b4fe;" title="Comandos para gerar vídeos em lote">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+          <span>🎬 Gravar em Lote</span>
         </button>
 
         <a href="templates/moderno/index.html" target="_blank" rel="noopener noreferrer" class="btn-lock" style="border-color: var(--color-gold); color: var(--color-gold-light);">
@@ -771,6 +772,97 @@
     </div>
   </div>
 
+  <!-- ====================================================================
+       MODAL DE GRAVAÇÃO DE VÍDEOS EM LOTE
+       ==================================================================== -->
+  <div class="modal-overlay" id="batchVideosModal">
+    <div class="modal-card" style="max-width: 680px; text-align: left; padding: 26px 24px;">
+      <button class="modal-close-btn" onclick="closeBatchVideosModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+        <span style="font-size: 1.6rem;">🎬</span>
+        <div>
+          <h2 class="modal-title" style="font-size: 1.25rem; margin: 0;">Gravação de Vídeos em Lote</h2>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Gere múltiplos vídeos Full HD sem precisar gravar um por um</span>
+        </div>
+      </div>
+
+      <p style="font-size: 0.86rem; color: var(--text-secondary); margin: 12px 0 18px; line-height: 1.45;">
+        O gerador grava vídeos de 10s com scroll fluido da página. Escolha um dos lotes prontos abaixo, copie o comando e cole no seu terminal:
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        
+        <!-- Opção 1: Lote 10 vídeos -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">⚡ Próximos 10 Vídeos Pendentes <span style="font-size: 0.72rem; padding: 2px 6px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 4px; margin-left: 6px;">Recomendado</span></div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:lote10</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:lote10')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 2: Modo Rápido (2 ao mesmo tempo) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">🚀 Modo Rápido (10 vídeos · 2 simultâneos)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:rapido</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:rapido')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 3: Camada A -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">⭐ Camada A Completa (Top 10)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:top10</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:top10')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 4: Lote Menor de 5 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">☕ Lote Rápido de 5 Vídeos</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:lote5</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:lote5')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 5: Lote Personalizado -->
+        <div style="background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 8px;">⚙️ Lote com Quantidade Personalizada</div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+              Qtd:
+              <input type="number" id="batchCustomQty" value="15" min="1" max="100" style="width: 60px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; font-size: 0.85rem;">
+            </label>
+            <label style="font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="batchCustomParallel" checked style="accent-color: #9333ea;">
+              2 em paralelo (2x mais rápido)
+            </label>
+            <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 6px 14px; font-size: 0.8rem; margin-left: auto;" onclick="copyCustomBatchCommand()">
+              Copiar Comando Personalizado
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #d8b4fe; line-height: 1.4;">
+        💡 <strong>Dica:</strong> Cole no terminal e aperte Enter. Conforme os vídeos são gravados, a lista em <code>js/videos-list.js</code> é atualizada automaticamente. Basta dar <strong>F5</strong> no painel para ver os botões roxos <em>"Assistir Vídeo Desktop"</em> liberados!
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de Notificação -->
   <div class="toast-notice" id="toastNotice">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -780,6 +872,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/videos-list.js"></script>
   <script src="js/clinicas-data.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

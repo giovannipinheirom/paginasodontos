@@ -6,12 +6,14 @@
 
 const MASTER_PIN = "odonto2026"; // Senha mestra de acesso restrito
 
-// Vídeos desktop 1920x1080 já gerados fisicamente em videos/
-const VIDEOS_GERADOS_INICIAIS = [
-  "belo-sorriso-odontologia-vila-albano",
-  "sq-mais-odontologia-e-vila-cordeiro",
-  "m-v-odontologia-e-estetica-jardim-reimberg"
-];
+// Vídeos desktop 1920x1080 gerados (carregados dinamicamente de js/videos-list.js com fallback)
+const VIDEOS_GERADOS_INICIAIS = (typeof window !== "undefined" && Array.isArray(window.VIDEOS_GERADOS))
+  ? window.VIDEOS_GERADOS
+  : [
+      "belo-sorriso-odontologia-vila-albano",
+      "sq-mais-odontologia-e-vila-cordeiro",
+      "m-v-odontologia-e-estetica-jardim-reimberg"
+    ];
 
 // As 9 etapas oficiais do funil de vendas odontológico
 const KANBAN_STAGES = [
@@ -1133,6 +1135,34 @@ function copyVideoCommand(slug) {
   showToast(`📋 Comando copiado! Cole no terminal para gravar.`);
 }
 
+// --- MODAL DE GRAVAÇÃO EM LOTE ---
+function openBatchVideosModal() {
+  const modal = document.getElementById("batchVideosModal");
+  if (modal) modal.classList.add("active");
+}
+
+function closeBatchVideosModal() {
+  const modal = document.getElementById("batchVideosModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function copyBatchCommand(cmd) {
+  copyToClipboard(cmd);
+  showToast(`📋 Comando copiado: ${cmd}`);
+}
+
+function copyCustomBatchCommand() {
+  const qtyInput = document.getElementById("batchCustomQty");
+  const parallelCheck = document.getElementById("batchCustomParallel");
+  const qty = parseInt(qtyInput ? qtyInput.value : "10", 10) || 10;
+  const isParallel = parallelCheck && parallelCheck.checked;
+  const cmd = isParallel 
+    ? `node gerar-videos.mjs --limite ${qty} --paralelo 2`
+    : `node gerar-videos.mjs --limite ${qty}`;
+  copyToClipboard(cmd);
+  showToast(`📋 Comando copiado: ${cmd}`);
+}
+
 // --- UTILITÁRIOS: CLIPBOARD E TOAST ---
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
@@ -1166,6 +1196,7 @@ window.addEventListener("click", (e) => {
   const videoModal = document.getElementById("videoModal");
   const reviewModal = document.getElementById("reviewModal");
   const backupModal = document.getElementById("backupModal");
+  const batchVideosModal = document.getElementById("batchVideosModal");
 
   if (e.target === briefingModal) closeBriefingModal();
   if (e.target === customizeModal) closeCustomizeModal();
@@ -1173,4 +1204,5 @@ window.addEventListener("click", (e) => {
   if (e.target === videoModal) closeVideoModal();
   if (e.target === reviewModal) closeReviewModal();
   if (e.target === backupModal) closeBackupModal();
+  if (e.target === batchVideosModal) closeBatchVideosModal();
 });
