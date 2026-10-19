@@ -1,0 +1,23 @@
+{
+  "name": "gerador-videos-clinicas",
+  "version": "1.0.0",
+  "description": "Gera vídeos verticais de 10s das prévias das clínicas",
+  "scripts": {
+    "videos": "node gerar-videos.mjs",
+    "videos:lote5": "node gerar-videos.mjs --limite 5",
+    "videos:lote10": "node gerar-videos.mjs --limite 10",
+    "videos:lote20": "node gerar-videos.mjs --limite 20",
+    "videos:rapido": "node gerar-videos.mjs --limite 10 --paralelo 2",
+    "videos:top10": "node gerar-videos.mjs --camada A",
+    "videos-top10": "node gerar-videos.mjs --camada A",
+    "videos:camada-b": "node gerar-videos.mjs --camada B --limite 20",
+    "videos:sync": "node gerar-videos.mjs --sync-only"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.64.1"
+  },
+  "type": "module"
+}
