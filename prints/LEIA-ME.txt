@@ -1,0 +1,1 @@
+Salve aqui os prints do Google Maps como <id>.png (ex.: wg-dentista-parque-brasil.png)
