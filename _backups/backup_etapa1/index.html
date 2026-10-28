@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>OdontoWebsites Hub · Catálogo Privado de Prévias</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- ====================================================================
+       TELA DE BLOQUEIO / PIN GATE (ACESSO EXCLUSIVO DO PROPRIETÁRIO)
+       ==================================================================== -->
+  <div class="lock-screen-overlay" id="lockOverlay">
+    <div class="lock-card">
+      <div class="lock-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1 class="lock-title">OdontoWebsites Hub</h1>
+      <p class="lock-sub">Painel restrito de gestão de landing pages e prévias para clínicas odontológicas.</p>
+
+      <div class="lock-input-group">
+        <input type="password" id="pinInput" class="lock-input" placeholder="••••••••" maxlength="15" autocomplete="current-password">
+      </div>
+
+      <label class="lock-remember">
+        <input type="checkbox" id="rememberPin" checked>
+        <span>Lembrar meu acesso neste dispositivo</span>
+      </label>
+
+      <button id="pinBtn" class="lock-btn">Acessar Catálogo</button>
+      <div id="lockError" class="lock-error-msg">Senha incorreta. Tente novamente.</div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       PAINEL PRINCIPAL DO CATÁLOGO DE PRÉVIAS
+       ==================================================================== -->
+  <div class="dashboard-container">
+    
+    <!-- Header do Painel -->
+    <header class="dash-header">
+      <div>
+        <div class="dash-brand-title">
+          <span>OdontoWebsites Hub</span>
+          <span class="dash-brand-badge">Gestão de Vendas SP</span>
+        </div>
+        <p class="dash-header-desc">
+          Catálogo privado de prévias e subdomínios (<code>clinicaX.odontowebsites.com.br</code>) para prospecção ativa.
+        </p>
+      </div>
+
+      <div class="dash-actions-top">
+        <div class="view-switch-wrap">
+          <button class="btn-view-toggle active" id="btnViewList" onclick="switchView('list')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <span>Lista</span>
+          </button>
+          <button class="btn-view-toggle" id="btnViewKanban" onclick="switchView('kanban')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"></rect><rect x="10" y="3" width="5" height="11" rx="1"></rect><rect x="17" y="3" width="5" height="15" rx="1"></rect></svg>
+            <span>Kanban</span>
+          </button>
+        </div>
+
+        <button onclick="openReviewModal()" class="btn-lock" style="border-color: #38bdf8; color: #38bdf8;" title="Checklist de sexta e contingências">
+          <span>📊 Revisão de Sexta</span>
+        </button>
+
+        <button onclick="openBatchVideosModal()" class="btn-lock" style="border-color: #a855f7; color: #d8b4fe;" title="Comandos para gerar vídeos em lote">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+          <span>🎬 Gravar em Lote</span>
+        </button>
+
+        <a href="previews/belo-sorriso-odontologia-vila-albano/index.html" target="_blank" rel="noopener noreferrer" class="btn-lock" style="border-color: var(--color-gold); color: var(--color-gold-light);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>Template Base</span>
+        </a>
+
+        <button id="logoutBtn" class="btn-lock" title="Bloquear painel imediatamente">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Bloquear</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         PAINEL DE INDICADORES & PONTOS DE CONTROLE (META 30 DIAS)
+         ==================================================================== -->
+    <section class="kpis-dashboard" aria-label="Indicadores de Vendas">
+      <div class="kpis-header">
+        <div class="kpis-title-group">
+          <h2>
+            <span>🎯 Indicadores & Pontos de Controle</span>
+            <span class="kpis-meta-tag">Meta 30 Dias: R$ 20.000 + R$ 6.940 MRR</span>
+          </h2>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+            21 dias úteis · Ritmo diário: <strong>26 abordagens/dia</strong> · Revisão de Sexta: 16/10, 23/10, 30/10 e 06/11
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis-grid">
+        <!-- 1. Abordagens por Dia Útil -->
+        <div class="kpi-box" id="kpiBoxAbordagens">
+          <span class="kpi-title">Abordagens Hoje</span>
+          <div class="kpi-metric">
+            <span id="kpiTodayCount">0</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">/ 26</span>
+          </div>
+          <span class="kpi-target">Meta: 26/dia (Alerta &lt; 20)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiContactBar" style="width: 0%;"></div>
+          </div>
+          <button class="btn-add-contact" onclick="incrementTodayContact()" title="Registrar mais 1 abordagem hoje">
+            +1 Abordagem Feita
+          </button>
+        </div>
+
+        <!-- 2. Conversas com o Decisor -->
+        <div class="kpi-box" id="kpiBoxDecisor">
+          <span class="kpi-title">Conversa c/ Decisor</span>
+          <div class="kpi-metric" id="kpiDecisionPct" style="color: #38bdf8;">0%</div>
+          <span class="kpi-target">Meta: 50% (Alerta &lt; 30%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiDecisionBar" style="width: 0%; background: #38bdf8;"></div>
+          </div>
+          <span id="kpiDecisionCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 decisores contatados</span>
+        </div>
+
+        <!-- 3. Taxa de Resposta Positiva -->
+        <div class="kpi-box" id="kpiBoxResposta">
+          <span class="kpi-title">Resposta Positiva</span>
+          <div class="kpi-metric" id="kpiPositivePct" style="color: #c084fc;">0%</div>
+          <span class="kpi-target">Meta: 20% (Alerta &lt; 15%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiPositiveBar" style="width: 0%; background: #c084fc;"></div>
+          </div>
+          <span id="kpiPositiveCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 respostas positivas</span>
+        </div>
+
+        <!-- 4. Mix Presença Local -->
+        <div class="kpi-box" id="kpiBoxMix">
+          <span class="kpi-title">Mix Presença Local</span>
+          <div class="kpi-metric" id="kpiMixPct" style="color: #34d399;">0%</div>
+          <span class="kpi-target">Meta: 50% (Alerta &lt; 35%)</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiMixBar" style="width: 0%; background: #34d399;"></div>
+          </div>
+          <span id="kpiMixCount" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 PL / 0 fechados</span>
+        </div>
+
+        <!-- 5. Caixa Acumulado -->
+        <div class="kpi-box" id="kpiBoxCash">
+          <span class="kpi-title">Caixa Acumulado</span>
+          <div class="kpi-metric" id="kpiCashVal" style="color: #34d399; font-size: 1.25rem;">R$ 0</div>
+          <span class="kpi-target">Meta: R$ 20.000</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiCashBar" style="width: 0%; background: #34d399;"></div>
+          </div>
+          <span id="kpiSalesTotal" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">0 vendas fechadas</span>
+        </div>
+
+        <!-- 6. MRR Ativo -->
+        <div class="kpi-box" id="kpiBoxMrr">
+          <span class="kpi-title">MRR Ativo</span>
+          <div class="kpi-metric" id="kpiMrrVal" style="color: #fbbf24; font-size: 1.25rem;">R$ 0/mês</div>
+          <span class="kpi-target">Meta: R$ 6.940/mês</span>
+          <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" id="kpiMrrBar" style="width: 0%; background: #fbbf24;"></div>
+          </div>
+          <span id="kpiMrrSub" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">Mensalidades ativas</span>
+        </div>
+      </div>
+
+      <!-- Banner de Contingência e Alertas Dinâmicos -->
+      <div class="contingency-banner" id="contingencyBanner">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">⚡</span>
+          <span id="contingencyText">Painel pronto. Mantenha o ritmo de 26 abordagens/dia para bater a meta de R$ 20.000 em 30 dias.</span>
+        </div>
+        <button class="btn-copy-sm" onclick="openReviewModal()">Ver Contingências</button>
+      </div>
+
+      <!-- Widget "Hoje" - Prioridades de Abordagem & Follow-up -->
+      <div class="today-priority-widget" id="todayPriorityWidget" style="margin-top: 14px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(197, 168, 128, 0.3); border-radius: var(--radius-md); padding: 14px 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.1rem;">🔥</span>
+            <span style="font-weight: 800; font-size: 0.95rem; color: #fff;">Lista Prioritária de Hoje</span>
+            <span class="status-badge" id="todayTotalBadge" style="background: rgba(197, 168, 128, 0.2); color: var(--color-gold); font-weight: 700;">0 pendências</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="filter-pill" id="btnFilterHoje" onclick="setApproachFilter('hoje')" style="border-color: var(--color-gold); color: var(--color-gold);">
+              ⚡ Ver Clínicas de Hoje
+            </button>
+            <button class="filter-pill" id="btnFilterFollowup4" onclick="setApproachFilter('d4')" style="border-color: #fb923c; color: #fb923c;">
+              ⏳ D+4 Vencidos (<span id="countD4">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterFollowup11" onclick="setApproachFilter('d11')" style="border-color: #ef4444; color: #ef4444;">
+              🚨 D+11 Despedida (<span id="countD11">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterCalls" onclick="setApproachFilter('call')" style="border-color: #c084fc; color: #c084fc;">
+              📅 Ligações (<span id="countCalls">0</span>)
+            </button>
+            <button class="filter-pill" id="btnFilterWaiting" onclick="setApproachFilter('waiting')" style="border-color: #38bdf8; color: #38bdf8;">
+              💬 Aguardando Retorno (<span id="countWaiting">0</span>)
+            </button>
+          </div>
+        </div>
+        <div id="todayPriorityList" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; font-size: 0.8rem; color: var(--text-secondary);">
+          <!-- Itens prioritários renderizados dinamicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de Busca e Filtros -->
+    <section class="controls-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por clínica, bairro, subdomínio ou ranking...">
+      </div>
+
+      <div class="filters-group">
+        <button class="filter-pill active" data-filter="todos">Todos</button>
+        <button class="filter-pill" data-filter="prontas">Prévias Prontas</button>
+        <button class="filter-pill" data-filter="camada_a">Camada A (Prioridade)</button>
+        <!-- Desde 21/10/2026 todas as clínicas usam o Moderno; filtros por template desativados -->
+        <!-- <button class="filter-pill" data-filter="moderno">Moderno</button> -->
+        <!-- <button class="filter-pill" data-filter="profissional">Profissional</button> -->
+        <!-- <button class="filter-pill" data-filter="amigavel">Amigável</button> -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISUALIZAÇÃO 1: MODO LISTA / GRID DE CLÍNICAS
+         ==================================================================== -->
+    <div id="listView">
+      <section class="clinics-grid" id="clinicsGrid" aria-label="Lista de Clínicas">
+        <!-- Cards são renderizados dinamicamente via dashboard.js -->
+      </section>
+
+      <!-- Botão de Carregar Mais -->
+      <div class="load-more-wrap" id="loadMoreWrap" style="display: none;">
+        <button class="btn-load-more" id="btnLoadMore" onclick="loadMoreClinics()">
+          Carregar Mais Clínicas (+30)
+        </button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VISUALIZAÇÃO 2: MODO QUADRO KANBAN (PIPELINE DE VENDAS COMPLETO)
+         ==================================================================== -->
+    <div id="kanbanView" class="kanban-view-container">
+      <div class="kanban-board" id="kanbanBoard">
+        <!-- Colunas e cards renderizados dinamicamente via dashboard.js -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE AVISO / BLOQUEIO DE TEMPLATE INDISPONÍVEL
+       ==================================================================== -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal-card" style="max-width: 500px; text-align: center;">
+      <button class="modal-close-btn" onclick="closeAlertModal()" aria-label="Fechar">&times;</button>
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        ⚠️
+      </div>
+      <h2 class="modal-title" id="alertModalTitle" style="color: #fca5a5;">Template Ainda Não Disponível</h2>
+      
+      <div class="modal-alert-box" id="alertModalMessage">
+        Mensagem de aviso...
+      </div>
+
+      <button class="lock-btn" onclick="closeAlertModal()" style="background: #ef4444; color: #fff; margin-top: 10px;">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE ABORDAGEM & CRM COCKPIT (NOVO PADRÃO DE MENSAGENS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="approachModal">
+    <div class="modal-card" style="max-width: 820px; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close-btn" onclick="closeApproachModal()" aria-label="Fechar">&times;</button>
+      
+      <!-- Cabeçalho da Clínica -->
+      <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <h2 class="modal-title" id="appModalClinicName" style="font-size: 1.3rem; margin-bottom: 4px;">Nome da Clínica</h2>
+            <div id="appModalClinicMeta" style="font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 12px; flex-wrap: wrap;">
+              <span id="appModalBairro">📍 Bairro</span>
+              <span id="appModalNota">⭐ 5,0 (0)</span>
+              <span id="appModalTelefone">📞 Telefone</span>
+              <span id="appModalWhatsappBadge">🟢 WhatsApp</span>
+            </div>
+          </div>
+          <div id="appModalPreviaActions" style="display: flex; gap: 8px;">
+            <!-- Botão Ver Prévia / Gerar Prévia -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuração Rápida do Prospect (Campos Novos da Seção 2) -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--color-gold); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+          ⚙️ Dados da Abordagem & Contato
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+          <!-- Falando com -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Falando com:</label>
+            <div style="display: flex; gap: 4px;">
+              <button type="button" class="btn-copy-sm" id="btnFalandoRecepcao" onclick="setApproachFalandoCom('recepção')" style="flex: 1; padding: 6px;">📞 Recepção</button>
+              <button type="button" class="btn-copy-sm" id="btnFalandoDentista" onclick="setApproachFalandoCom('dentista')" style="flex: 1; padding: 6px;">👨‍⚕️ Dentista</button>
+            </div>
+          </div>
+
+          <!-- Decisor & Tratamento -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Dentista Decisor:</label>
+            <div style="display: flex; gap: 4px;">
+              <select id="appInputTratamento" onchange="updateApproachField('tratamento', this.value)" style="background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 6px; font-size: 0.8rem;">
+                <option value="doutor(a)">doutor(a)</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Dra.">Dra.</option>
+              </select>
+              <input type="text" id="appInputNomeDecisor" placeholder="Nome do dentista" oninput="updateApproachField('nomeDecisor', this.value)" style="flex: 1; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;">
+            </div>
+          </div>
+
+          <!-- Nome Recepção -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Nome na Recepção (opcional):</label>
+            <input type="text" id="appInputNomeRecepcao" placeholder="Ex: Camila" oninput="updateApproachField('nomeRecepcao', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;">
+          </div>
+
+          <!-- Ângulo de Dor -->
+          <div>
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Ângulo da Abordagem:</label>
+            <select id="appSelectAngulo" onchange="updateApproachField('tipoAngulo', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 5px 8px; font-size: 0.78rem;">
+              <!-- 11 Opções -->
+            </select>
+          </div>
+
+          <!-- Etapa do Funil -->
+          <div style="grid-column: 1 / -1;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">Etapa no Funil:</label>
+            <select id="appSelectEtapa" onchange="setApproachEtapa(this.value)" style="width: 100%; background: var(--bg-surface); color: var(--color-gold); font-weight: 700; border: 1px solid rgba(197, 168, 128, 0.4); border-radius: 4px; padding: 6px 10px; font-size: 0.82rem;">
+              <!-- 9 Etapas -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Navegação dos Botões de Ação [A] a [K] -->
+      <div style="margin-bottom: 12px;">
+        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <span>🎯 Escolha a Mensagem / Script:</span>
+          <span id="appActiveStageBadge" style="font-size: 0.72rem; color: var(--color-gold); font-weight: normal;"></span>
+        </div>
+
+        <!-- Grupo de Botões Organizados em 4 Categorias -->
+        <div class="approach-buttons-container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 1. Primeiro Contato -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">1. 1º Contato:</span>
+            <button class="btn-action-approach" id="btnApp_A" onclick="selectApproachAction('A')">📞 [A] Roteiro Ligação</button>
+            <button class="btn-action-approach" id="btnApp_B" onclick="selectApproachAction('B')">💬 [B] Recepção</button>
+            <button class="btn-action-approach" id="btnApp_C" onclick="selectApproachAction('C')">❓ [C] Pergunta Dentista</button>
+            <button class="btn-action-approach" id="btnApp_C2" onclick="selectApproachAction('C2')">📱 [C2] Pedir Contato</button>
+          </div>
+
+          <!-- 2. Respostas & Objeções -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">2. Respostas:</span>
+            <button class="btn-action-approach" id="btnApp_D" onclick="selectApproachAction('D')">🎯 [D] Confirmou Dor (Vídeo 10s)</button>
+            <button class="btn-action-approach" id="btnApp_E" onclick="selectApproachAction('E')">⚠️ [E] Dado Errado</button>
+            <button class="btn-action-approach" id="btnApp_F" onclick="selectApproachAction('F')">🤝 [F] Só Indicação / Não Preciso</button>
+          </div>
+
+          <!-- 3. Apresentação & Fechamento -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">3. Fechamento:</span>
+            <button class="btn-action-approach" id="btnApp_G" onclick="selectApproachAction('G')">🎬 [G] Enviar Vídeo e Prévia</button>
+            <button class="btn-action-approach" id="btnApp_H" onclick="selectApproachAction('H')">⏱️ [H] Pedir Call 10m</button>
+            <button class="btn-action-approach" id="btnApp_I" onclick="selectApproachAction('I')">🤝 [I] Pós-Ligação</button>
+          </div>
+
+          <!-- 4. Follow-up -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.68rem; color: var(--text-muted); min-width: 90px; font-weight: 700; text-transform: uppercase;">4. Follow-up:</span>
+            <button class="btn-action-approach" id="btnApp_J" onclick="selectApproachAction('J')">⏳ [J] Follow-up D+4</button>
+            <button class="btn-action-approach" id="btnApp_K" onclick="selectApproachAction('K')">👋 [K] D+11 (Despedida)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caixa de Aviso / Instruções Contextuais -->
+      <div id="appContextAlert" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 12px; line-height: 1.4;">
+        <!-- Alertas dinâmicos: aviso de fixo, lembrete de anexo de vídeo, etc. -->
+      </div>
+
+      <!-- Caixa Editável de Prévia da Mensagem -->
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="font-size: 0.78rem; font-weight: 700; color: #fff;">
+            📝 Mensagem / Roteiro (Editável antes de enviar):
+          </label>
+          <span id="appWordCount" style="font-size: 0.72rem; color: var(--text-secondary);">0 palavras</span>
+        </div>
+        <textarea id="appMessagePreview" rows="6" style="width: 100%; background: #0f172a; color: #f8fafc; border: 1px solid rgba(197, 168, 128, 0.4); border-radius: var(--radius-md); padding: 12px; font-size: 0.88rem; line-height: 1.5; resize: vertical;"></textarea>
+      </div>
+
+      <!-- Barra de Ação de Disparo: Copiar e Abrir no WhatsApp -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="lock-btn" id="btnAppCopy" onclick="copyApproachMessage()" style="background: var(--bg-surface-alt); border: 1px solid var(--border-color); color: #fff; padding: 8px 16px; font-size: 0.85rem;">
+            📋 Copiar Texto
+          </button>
+          <a id="btnAppWhatsapp" href="#" target="_blank" rel="noopener noreferrer" class="lock-btn" onclick="handleApproachWhatsappClick(event)" style="background: #25d366; color: #fff; padding: 8px 18px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+            </svg>
+            <span>Abrir no WhatsApp</span>
+          </a>
+        </div>
+        <div id="appLastContactInfo" style="font-size: 0.75rem; color: var(--text-secondary);">
+          Último contato: Nunca
+        </div>
+      </div>
+
+      <!-- Bloco de CRM Rápido: Resposta da Dor & Observações -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">🎯 Resposta da Dor (o que a clínica disse):</label>
+          <input type="text" id="appInputRespostaDor" placeholder="Ex: 'Sim, atendemos 24h mas noite é fraca'" onchange="updateApproachField('respostaDor', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 8px; font-size: 0.8rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">📝 Anotações & Observações livres:</label>
+          <input type="text" id="appInputObs" placeholder="Ex: 'Doutor prefere ligar na terça às 10h'" onchange="updateApproachField('obs', this.value)" style="width: 100%; background: var(--bg-surface); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 8px; font-size: 0.8rem;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE BRIEFING E GAVETA DE VENDAS COMPLETA (4 ABAS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="briefingModal">
+    <div class="modal-card" style="max-width: 720px;">
+      <button class="modal-close-btn" onclick="closeBriefingModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="margin-bottom: 16px;">
+        <h2 class="modal-title" id="modalClinicName">Nome da Clínica</h2>
+        <div class="modal-subtitle" id="modalSubdomain" style="margin-bottom: 14px;">https://subdominio.odontowebsites.com.br</div>
+        
+        <!-- Abas da Gaveta de Vendas -->
+        <div class="drawer-tabs">
+          <button class="drawer-tab-btn active" id="tabBtnBriefing" onclick="switchDrawerTab('tabBriefing')">📋 Briefing</button>
+          <button class="drawer-tab-btn" id="tabBtnScripts" onclick="switchDrawerTab('tabScripts')">💬 Scripts de Contato</button>
+          <button class="drawer-tab-btn" id="tabBtnObjections" onclick="switchDrawerTab('tabObjections')">🛡️ Matador de Objeções</button>
+          <button class="drawer-tab-btn" id="tabBtnClosing" onclick="switchDrawerTab('tabClosing')">💰 Proposta & PIX</button>
+        </div>
+      </div>
+
+      <!-- ABA 1: BRIEFING & DIAGNÓSTICO -->
+      <div id="tabBriefing" class="drawer-tab-content active">
+        <div class="briefing-field">
+          <div class="briefing-label">Diagnóstico e Alertas</div>
+          <div class="briefing-val" id="modalDiagnosis">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Título da Página ({TITULO})</div>
+          <div class="briefing-val" id="modalTitle">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Subtítulo ({SUBTITULO})</div>
+          <div class="briefing-val" id="modalSubtitle">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Serviços em Destaque</div>
+          <div class="briefing-val" id="modalServices">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Briefing e Diferenciais</div>
+          <div class="briefing-val" id="modalHighlight">...</div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Endereço e Horário</div>
+          <div class="briefing-val">
+            <div id="modalAddress" style="margin-bottom: 4px;">...</div>
+            <div id="modalHours" style="color: var(--text-secondary); font-size: 0.8rem;">...</div>
+          </div>
+        </div>
+
+        <div class="briefing-field">
+          <div class="briefing-label">Melhor Horário para Ligar</div>
+          <div class="briefing-val" id="modalBestTime" style="color: var(--color-gold-light);">...</div>
+        </div>
+      </div>
+
+      <!-- ABA 2: SCRIPTS DE CONTATO (WHATSAPP & LIGAÇÃO) -->
+      <div id="tabScripts" class="drawer-tab-content">
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>📞 1. Abordagem c/ Recepção (Secretária)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('recepcao')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptRecepcaoText">
+            "Olá, tudo bem? Meu nome é [Seu Nome]. Preparei uma prévia visual exclusiva da nova página online da [Nome da Clínica] com vídeo interativo para os pacientes de [Bairro]. Com quem falo na equipe do Dr(a) [Nome] para encaminhar a prévia de 10 segundos?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>💬 2. Abordagem Direta c/ o Dentista (Decisor)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('decisor')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptDecisorText">
+            "Olá Dr(a), tudo bem? Notei que a [Nome da Clínica] tem uma excelente reputação no Google em [Bairro], mas ainda não tem uma página moderna com foco em agendamentos particulares no WhatsApp. Montei uma prévia completa sem compromisso para você ver como ficaria: [Link]. O que achou?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>⏳ 3. Follow-up D+4 (Sem Resposta)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('followup4')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptFollowup4Text">
+            "Dr(a), tudo bem? Sei da correria dos atendimentos no consultório. Gravamos um vídeo de 10 segundos da sua prévia para facilitar a visualização sem precisar abrir links: [Link Vídeo]. Conseguiu dar uma olhada?"
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>🚨 4. Follow-up D+11 (Urgência & Desativação)</span>
+            <button class="btn-copy-sm" onclick="copyContactScript('followup11')">Copiar Script</button>
+          </div>
+          <div class="objection-answer" id="scriptFollowup11Text">
+            "Olá Dr(a)! Como não tivemos retorno, nosso servidor de testes irá desativar o subdomínio da [Nome da Clínica] nesta sexta-feira para liberar espaço para outros consultórios de [Bairro]. Se tiver interesse em manter no ar ou personalizar, me avise hoje até às 18h!"
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 3: MATADOR DE OBJEÇÕES -->
+      <div id="tabObjections" class="drawer-tab-content">
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 1: "Já temos Instagram ativo e funciona bem"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('instagram')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_instagram">
+            "Excelente, Dr(a)! O Instagram é ótimo para quem já está rolando o feed. Mas quando um paciente está com urgência ou dor de dente às 21h, ele pesquisa no Google: 'dentista [Bairro]'. Se sua clínica não tiver uma página rápida conectada ao WhatsApp, esse paciente vai direto para o consultório vizinho."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 2: "Está caro / Não tenho verba agora"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('caro')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_caro">
+            "Entendo perfeitamente. Mas veja sob a ótica de retorno: nosso plano Presença Local custa R$ 800 de entrada e R$ 497/mês. Um único implante, clareamento ou prótese que chegar pelo Google no mês já paga o ano inteiro da página. É um investimento que se autofinancia no primeiro paciente particular."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 3: "Preciso pensar / Fale comigo mês que vem"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('pensar')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_pensar">
+            "Com certeza, Dr(a). Como a prévia já está personalizada e pronta em nosso servidor temporário, posso mantê-la ativa até sexta-feira para você e sua equipe navegarem. Se fecharmos nesta semana, mantenho a taxa de implantação em R$ 800 com o domínio e a hospedagem já inclusos."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 4: "Meu sobrinho / conhecido faz para mim"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('conhecido')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_conhecido">
+            "Compreendo! A questão é que sites odontológicos precisam respeitar rigorosamente as normas éticas do CRO e CFO (sem fotos de antes/depois, com número de inscrição e RT visíveis). Além disso, configuramos o SEO local para São Paulo e damos manutenção contínua, sem sobrecarregar ninguém da sua família."
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Objeção 5: "Não tenho tempo para criar conteúdo ou mexer nisso"</span>
+            <button class="btn-copy-sm" onclick="copyObjection('tempo')">Copiar Resposta</button>
+          </div>
+          <div class="objection-answer" id="objAnswer_tempo">
+            "Exatamente por isso que já entreguei a página 100% pronta! Você não precisa escrever textos nem escolher fotos. Eu fiz todo o briefing da [Nome da Clínica]. Só precisamos de 5 minutos para você validar se o telefone e endereço estão perfeitos e colocamos no ar em 24h."
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 4: PROPOSTA & PIX -->
+      <div id="tabClosing" class="drawer-tab-content">
+        <div class="proposal-cards-grid">
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 14px;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #34d399; text-transform: uppercase;">⭐ Plano Presença Local</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 4px 0;">R$ 800 <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);">+ R$ 497/mês</span></div>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; padding-left: 14px;">
+              <li>Landing page personalizada moderna</li>
+              <li>Otimização do Google Meu Negócio</li>
+              <li>SEO local para o bairro em São Paulo</li>
+              <li>Domínio próprio + Hospedagem segura</li>
+              <li>Manutenção ilimitada de textos e fotos</li>
+            </ul>
+          </div>
+
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: var(--radius-md); padding: 14px;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">Plano Essencial</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 4px 0;">R$ 1.000 <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);">+ R$ 197/mês</span></div>
+            <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; padding-left: 14px;">
+              <li>Landing page no ar e responsiva</li>
+              <li>Botão de WhatsApp direto</li>
+              <li>Hospedagem e SSL inclusos</li>
+              <li>Manutenção preventiva mensal</li>
+              <li>Suporte técnico dedicado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="objection-card">
+          <div class="objection-title">
+            <span>Mensagem Pronta de Envio de PIX e Contrato</span>
+            <button class="btn-copy-sm" onclick="copyClosingScript()">Copiar Mensagem</button>
+          </div>
+          <div class="objection-answer" id="closingScriptText">
+            "Excelente, Dr(a)! Para ativarmos a página definitiva da [Nome da Clínica] no seu domínio e conectarmos ao Google Meu Negócio, segue a chave PIX para a entrada de ativação:<br><br>
+            <strong>Chave PIX (CNPJ/E-mail):</strong> [SUA-CHAVE-PIX]<br>
+            <strong>Favorecido:</strong> [Seu Nome / Razão Social]<br><br>
+            Assim que confirmado, enviamos o link do termo de serviço e a página estará publicada e indexada em menos de 24 horas úteis!"
+          </div>
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--text-muted); background: #0b0e14; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle);">
+          ⚖️ <strong>Conformidade CFO:</strong> O template segue o Código de Ética Odontológica (Resolução CFO 196/2019): sem fotos de antes/depois de tratamentos, sem promessas de cura, com indicação do Responsável Técnico e CRO.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE REVISÃO DE SEXTA (30 MINUTOS & CONTINGÊNCIAS)
+       ==================================================================== -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="modal-card" style="max-width: 680px;">
+      <button class="modal-close-btn" onclick="closeReviewModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title">📊 Revisão de Sexta (30 Minutos)</h2>
+      <div class="modal-subtitle">Datas de revisão: <strong>16/10, 23/10, 30/10 e 06/11</strong> · Auditoria semanal da meta</div>
+
+      <div class="review-checklist">
+        <div class="review-step-item">
+          <div class="review-step-num">1</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Comparar o Caixa Acumulado com o Cronograma Semanal</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Meta total: <strong>R$ 20.000 em caixa + R$ 6.940 em MRR</strong> (20 clientes: 10 Presença Local + 10 Essencial). Verifique quanto entrou na semana.
+            </p>
+          </div>
+        </div>
+
+        <div class="review-step-item">
+          <div class="review-step-num">2</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Identificar o Gargalo da Semana</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Qual indicador está mais abaixo da meta? (Abordagens &lt; 20/dia, Decisor &lt; 30%, Resposta Positiva &lt; 15%, Mix PL &lt; 35% ou MRR &lt; 80% do previsto).
+            </p>
+          </div>
+        </div>
+
+        <div class="review-step-item">
+          <div class="review-step-num">3</div>
+          <div>
+            <strong style="color: #fff; font-size: 0.9rem;">Escolher Uma Única Mudança para a Próxima Semana</strong>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Foque em resolver apenas o gargalo principal usando as ações de contingência abaixo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-gold); margin: 20px 0 8px;">
+        🎯 Tabela de Referência do Autor vs. Metas
+      </h3>
+      <div class="table-responsive">
+        <table class="review-table">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Meta Ideal</th>
+              <th>Sinal de Alerta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Abordagens por dia útil</td>
+              <td><strong>26/dia</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 20 por 2 dias seguidos</td>
+            </tr>
+            <tr>
+              <td>Conversas com o decisor</td>
+              <td><strong>50%</strong> das abordagens</td>
+              <td style="color: #fca5a5;">Abaixo de 30%</td>
+            </tr>
+            <tr>
+              <td>Taxa de resposta positiva</td>
+              <td><strong>20%</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 15%</td>
+            </tr>
+            <tr>
+              <td>Prévias e vídeos enviados em &lt; 24h</td>
+              <td><strong>100%</strong></td>
+              <td style="color: #fca5a5;">Qualquer prévia atrasada</td>
+            </tr>
+            <tr>
+              <td>Fechamento s/ respostas positivas</td>
+              <td><strong>20% a 30%</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 12%</td>
+            </tr>
+            <tr>
+              <td>Mix no Presença Local</td>
+              <td><strong>50% das vendas</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 35%</td>
+            </tr>
+            <tr>
+              <td>MRR ativo</td>
+              <td><strong>R$ 6.940/mês</strong></td>
+              <td style="color: #fca5a5;">Abaixo de 80% do previsto</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="lock-btn" onclick="closeReviewModal()" style="width: auto; padding: 10px 24px;">Concluir Revisão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE BACKUP E SINCRONIZAÇÃO DE DADOS
+       ==================================================================== -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-card" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="closeBackupModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title">💾 Backup & Sincronização</h2>
+      <div class="modal-subtitle">Exporte seu progresso para salvar ou trocar de dispositivo sem perder seus dados</div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <button class="btn-action btn-action-preview" onclick="exportDataJson()" style="padding: 8px 16px;">
+          📥 Baixar Backup (.json)
+        </button>
+        <button class="btn-action btn-action-briefing" onclick="copyBackupJson()" style="padding: 8px 16px;">
+          📋 Copiar JSON
+        </button>
+        <button class="btn-action btn-action-briefing" onclick="importDataJson()" style="padding: 8px 16px; background: #2563eb; color: #fff;">
+          📤 Restaurar / Importar
+        </button>
+      </div>
+
+      <textarea id="backupDataArea" class="backup-textarea" placeholder="Cole aqui o JSON de backup para restaurar seus dados..."></textarea>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+        <button onclick="resetAllProgress()" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+          ⚠️ Resetar todos os dados para o início
+        </button>
+        <button class="lock-btn" onclick="closeBackupModal()" style="width: auto; padding: 8px 20px;">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE PERSONALIZAÇÃO DE PRÉVIA: FOTOS E 3 AVALIAÇÕES REAIS
+       ==================================================================== -->
+  <div class="modal-overlay" id="customizeModal">
+    <div class="modal-card customizer-card">
+      <button class="modal-close-btn" onclick="closeCustomizeModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="font-size: 1.3rem;">🎨</span>
+          <h2 class="modal-title" id="custClinicTitle" style="margin-bottom: 0;">Personalizar Prévia</h2>
+          <span class="badge-template moderno" id="custTemplateBadge">MODERNO</span>
+        </div>
+        <div class="modal-subtitle" id="custClinicSub" style="margin-bottom: 0;">Substitua as fotos e insira 3 avaliações reais do Google antes de emitir</div>
+      </div>
+
+      <!-- SEÇÃO 1: 3 AVALIAÇÕES REAIS DO GOOGLE -->
+      <div class="customizer-section">
+        <div class="customizer-section-title">
+          <span>⭐ 3 Avaliações Reais de Pacientes (Google Meu Negócio)</span>
+        </div>
+        <p class="customizer-section-desc">
+          Insira 3 depoimentos reais retirados do Google da clínica. Eles substituirão automaticamente os depoimentos padrão na seção de avaliações da página.
+        </p>
+
+        <div class="customizer-reviews-grid">
+          <!-- Avaliação 1 -->
+          <div class="custom-review-box">
+            <label>Avaliação 1</label>
+            <input type="text" id="custRevName1" class="custom-input" placeholder="Nome do Paciente (ex: Mariana S.)">
+            <select id="custRevStars1" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText1" class="custom-textarea" placeholder="Cole o depoimento real da paciente..."></textarea>
+          </div>
+
+          <!-- Avaliação 2 -->
+          <div class="custom-review-box">
+            <label>Avaliação 2</label>
+            <input type="text" id="custRevName2" class="custom-input" placeholder="Nome do Paciente (ex: Rodrigo F.)">
+            <select id="custRevStars2" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText2" class="custom-textarea" placeholder="Cole o depoimento real..."></textarea>
+          </div>
+
+          <!-- Avaliação 3 -->
+          <div class="custom-review-box">
+            <label>Avaliação 3</label>
+            <input type="text" id="custRevName3" class="custom-input" placeholder="Nome do Paciente (ex: Camila P.)">
+            <select id="custRevStars3" class="custom-input">
+              <option value="5" selected>★★★★★ (5 Estrelas)</option>
+              <option value="4">★★★★☆ (4 Estrelas)</option>
+              <option value="3">★★★☆☆ (3 Estrelas)</option>
+            </select>
+            <textarea id="custRevText3" class="custom-textarea" placeholder="Cole o depoimento real..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: SUBSTITUIÇÃO DAS FOTOS DA PRÉVIA (IMGS) -->
+      <div class="customizer-section">
+        <div class="customizer-section-title">
+          <span>🖼️ Substituir Fotos da Página (Imagens Reais da Clínica)</span>
+        </div>
+        <p class="customizer-section-desc">
+          Cole a URL da foto (Google Maps / Instagram) ou envie uma foto do seu computador. A prévia substituirá as fotos padrão instantaneamente.
+        </p>
+
+        <!-- Foto 1: Hero Principal (Arco) -->
+        <div class="custom-photo-row">
+          <div class="custom-photo-label">
+            Foto do Topo (Hero)
+            <small>Moldura em arco principal</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custHeroUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custHeroUrl', 'custHeroThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custHeroFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custHeroUrl', 'custHeroThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custHeroThumb" class="thumb-preview" src="" alt="Hero Preview">
+          </div>
+        </div>
+
+        <!-- Foto 2: Sobre a Clínica -->
+        <div class="custom-photo-row">
+          <div class="custom-photo-label">
+            Foto do Consultório
+            <small>Seção Sobre a Clínica</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custSobreUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custSobreUrl', 'custSobreThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custSobreFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custSobreUrl', 'custSobreThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custSobreThumb" class="thumb-preview" src="" alt="Sobre Preview">
+          </div>
+        </div>
+
+        <!-- Foto 3: Tecnologia & Equipamentos -->
+        <div class="custom-photo-row" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+          <div class="custom-photo-label">
+            Foto de Tecnologia
+            <small>Consultório & Equipamentos</small>
+          </div>
+          <div class="custom-photo-inputs">
+            <input type="text" id="custTechUrl" class="custom-input" placeholder="URL da foto (https://...) ou envie do PC" oninput="updateThumb('custTechUrl', 'custTechThumb')">
+            <label class="btn-upload-file">
+              📁 Upload
+              <input type="file" id="custTechFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'custTechUrl', 'custTechThumb')">
+            </label>
+          </div>
+          <div>
+            <img id="custTechThumb" class="thumb-preview" src="" alt="Tech Preview">
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <div class="customizer-footer-actions">
+        <button type="button" class="btn-lock" onclick="resetCustomPreview()" style="border-color: #ef4444; color: #fca5a5;" title="Voltar para as fotos e avaliações padrão do template">
+          Restaurar Padrão
+        </button>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-lock" onclick="closeCustomizeModal()">
+            Cancelar
+          </button>
+          <button type="button" class="lock-btn" onclick="saveAndRegeneratePreview()" style="width: auto; padding: 10px 24px; background: linear-gradient(135deg, #dfcaab 0%, #c5a880 100%); color: #0b0e14; font-weight: 800;">
+            ⚡ Salvar & Emitir Prévia Atualizada
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE VÍDEO DESKTOP (1920x1080 · SCROLLAGEM NORMAL)
+       ==================================================================== -->
+  <div class="modal-overlay" id="videoModal">
+    <div class="modal-card" style="max-width: 820px; text-align: center; padding: 24px 20px;">
+      <button class="modal-close-btn" onclick="closeVideoModal()" aria-label="Fechar">&times;</button>
+      <h2 class="modal-title" id="videoModalTitle" style="font-size: 1.25rem; margin-bottom: 4px;">Vídeo Desktop (10s)</h2>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+        1920x1080 Full HD · Scrollagem natural da landing page
+      </p>
+
+      <div style="width: 100%; aspect-ratio: 16 / 9; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); border: 1px solid var(--border-subtle);">
+        <video id="videoPlayer" controls autoplay loop playsinline style="width: 100%; height: 100%; object-fit: contain;">
+          <source src="" type="video/mp4">
+          Seu navegador não suporta reprodução de vídeo.
+        </video>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <a id="videoDownloadBtn" href="" download class="btn-action btn-action-preview" style="padding: 10px 22px; font-size: 0.9rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          <span>Baixar Vídeo Desktop (.mp4)</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE GRAVAÇÃO DE VÍDEOS EM LOTE
+       ==================================================================== -->
+  <div class="modal-overlay" id="batchVideosModal">
+    <div class="modal-card" style="max-width: 680px; text-align: left; padding: 26px 24px;">
+      <button class="modal-close-btn" onclick="closeBatchVideosModal()" aria-label="Fechar">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+        <span style="font-size: 1.6rem;">🎬</span>
+        <div>
+          <h2 class="modal-title" style="font-size: 1.25rem; margin: 0;">Gravação de Vídeos em Lote</h2>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Gere múltiplos vídeos Full HD sem precisar gravar um por um</span>
+        </div>
+      </div>
+
+      <p style="font-size: 0.86rem; color: var(--text-secondary); margin: 12px 0 18px; line-height: 1.45;">
+        O gerador grava vídeos de 10s com scroll fluido da página. Escolha um dos lotes prontos abaixo, copie o comando e cole no seu terminal:
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        
+        <!-- Opção 1: Lote 10 vídeos -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">⚡ Próximos 10 Vídeos Pendentes <span style="font-size: 0.72rem; padding: 2px 6px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 4px; margin-left: 6px;">Recomendado</span></div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:lote10</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:lote10')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 2: Modo Rápido (2 ao mesmo tempo) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">🚀 Modo Rápido (10 vídeos · 2 simultâneos)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:rapido</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:rapido')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 3: Camada A -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">⭐ Camada A Completa (Top 10)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:top10</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:top10')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 4: Lote Menor de 5 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff;">☕ Lote Rápido de 5 Vídeos</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">npm run videos:lote5</div>
+          </div>
+          <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 7px 14px; font-size: 0.8rem;" onclick="copyBatchCommand('npm run videos:lote5')">
+            Copiar Comando
+          </button>
+        </div>
+
+        <!-- Opção 5: Lote Personalizado -->
+        <div style="background: var(--bg-surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 8px;">⚙️ Lote com Quantidade Personalizada</div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+              Qtd:
+              <input type="number" id="batchCustomQty" value="15" min="1" max="100" style="width: 60px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; font-size: 0.85rem;">
+            </label>
+            <label style="font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="batchCustomParallel" checked style="accent-color: #9333ea;">
+              2 em paralelo (2x mais rápido)
+            </label>
+            <button class="btn-action" style="background: #9333ea; color: #fff; width: auto; padding: 6px 14px; font-size: 0.8rem; margin-left: auto;" onclick="copyCustomBatchCommand()">
+              Copiar Comando Personalizado
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #d8b4fe; line-height: 1.4;">
+        💡 <strong>Dica:</strong> Cole no terminal e aperte Enter. Conforme os vídeos são gravados, a lista em <code>js/videos-list.js</code> é atualizada automaticamente. Basta dar <strong>F5</strong> no painel para ver os botões roxos <em>"Assistir Vídeo Desktop"</em> liberados!
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div class="toast-notice" id="toastNotice">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toastMsg">Link copiado com sucesso!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/videos-list.js"></script>
+  <script src="js/clinicas-extra.js"></script>
+  <script src="js/clinicas-data.js"></script>
+  <script src="js/approach-engine.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

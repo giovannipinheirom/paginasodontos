@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buckingham Idiomas | Escola de Idiomas em São Bernardo do Campo</title>
+  <meta name="description" content="Metodologia personalizada para crianças, jovens e adultos no Parque dos Passaros.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-paper font-sans text-ink antialiased">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="fixed inset-x-0 top-0 z-50 transition-all duration-300 bg-white/95 shadow-sm backdrop-blur-md">
+    <div class="container flex h-[76px] items-center justify-between">
+      
+      <!-- Logo Monograma -->
+      <a href="#topo" class="group flex items-center gap-3">
+        <span class="relative flex h-11 w-10 items-center justify-center">
+          <svg viewBox="0 0 40 44" class="absolute inset-0 h-full w-full drop-shadow-sm" aria-hidden="true">
+            <path d="M20 1.5 37 7v14.5c0 10.2-7.1 17.8-17 21-9.9-3.2-17-10.8-17-21V7L20 1.5Z" fill="#0B1F4B"></path>
+            <path d="M20 5.2 33.6 9.6v11.9c0 8.2-5.6 14.4-13.6 17.2-8-2.8-13.6-9-13.6-17.2V9.6L20 5.2Z" fill="none" stroke="#C8102E" stroke-width="1.2"></path>
+          </svg>
+          <span class="relative -mt-1 font-display text-[13px] font-extrabold tracking-tight text-white">
+            BI
+          </span>
+        </span>
+        <span class="flex flex-col leading-none">
+          <span class="font-display text-[17px] font-extrabold tracking-tight text-navy-900">
+            Buckingham Idiomas
+          </span>
+          <span class="mt-1 text-[9.5px] font-bold uppercase tracking-[0.28em] text-crimson-500">
+            English School
+          </span>
+        </span>
+      </a>
+
+      <!-- Menu Desktop -->
+      <nav class="hidden lg:flex items-center gap-7 text-[14.5px] font-semibold text-slate-700">
+        <a href="#grade" class="transition-colors hover:text-crimson-500">Cursos & Turmas</a>
+        <a href="#porque" class="transition-colors hover:text-crimson-500">Diferenciais</a>
+        <a href="#depoimentos" class="transition-colors hover:text-crimson-500">Depoimentos</a>
+        <a href="#galeria" class="transition-colors hover:text-crimson-500">Estrutura</a>
+        <a href="#faq" class="transition-colors hover:text-crimson-500">Dúvidas</a>
+        <a href="#cta-final" class="transition-colors hover:text-crimson-500">Localização</a>
+      </nav>
+
+      <!-- Ações do Header -->
+      <div class="flex items-center gap-4">
+        <!-- Badge Google Maps -->
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Buckingham%20Idiomas&amp;query_place_id=ChIJGyWbpLNDzpQRXm8mz2CrZzw" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100">
+          <span class="text-amber-500">★</span>
+          <strong>5,0</strong>
+          <span class="text-slate-500">(7 no Google)</span>
+        </a>
+
+        <!-- Botão WhatsApp Header -->
+        <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-crimson-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-crimson-600">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+          </svg>
+          <span class="hidden md:inline">Secretaria</span>
+          <span class="md:hidden">Contato</span>
+        </a>
+
+        <!-- Botão Mobile Hamburger -->
+        <button id="mobileMenuToggle" class="lg:hidden p-2 text-slate-700 hover:text-navy-900" aria-label="Abrir menu">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dropdown Mobile Menu -->
+    <div id="mobileMenu" class="hidden lg:hidden border-b border-slate-200 bg-white px-6 py-4 shadow-lg">
+      <div class="flex flex-col gap-3 text-base font-semibold text-slate-800">
+        <a href="#grade" class="py-1 hover:text-crimson-500">Cursos & Turmas</a>
+        <a href="#porque" class="py-1 hover:text-crimson-500">Diferenciais</a>
+        <a href="#depoimentos" class="py-1 hover:text-crimson-500">Depoimentos</a>
+        <a href="#galeria" class="py-1 hover:text-crimson-500">Estrutura</a>
+        <a href="#faq" class="py-1 hover:text-crimson-500">Dúvidas</a>
+        <a href="#cta-final" class="py-1 hover:text-crimson-500">Localização</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="topo" class="pt-[76px]">
+
+    <!-- ==================== 1. HERO ==================== -->
+    <section class="relative isolate overflow-hidden bg-navy-950 text-white" data-video="hero">
+      <div class="bg-diagonals absolute inset-0 -z-10" aria-hidden="true"></div>
+      <div class="absolute -left-48 -top-48 -z-10 h-[640px] w-[640px] rounded-full bg-navy-600/50 blur-[140px]" aria-hidden="true"></div>
+      <div class="absolute -right-24 bottom-0 -z-10 h-[460px] w-[460px] rounded-full bg-crimson-500/25 blur-[130px]" aria-hidden="true"></div>
+
+      <div class="container grid items-center gap-12 pb-24 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:pb-32 lg:pt-16">
+        <div>
+          <!-- Eyebrow -->
+          <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-crimson-300 backdrop-blur-sm">
+            <span>📍 São Bernardo do Campo · Parque dos Passaros</span>
+          </div>
+
+          <!-- Título Hero -->
+          <h1 class="display-xl mt-6 text-white font-display font-extrabold tracking-tight">
+            Inglês de verdade, com <span class="accent text-crimson-300 font-serif italic">padrão de excelência</span> em cada aula.
+          </h1>
+
+          <!-- Subtítulo -->
+          <p class="mt-6 max-w-xl text-lg leading-relaxed text-navy-100/85">
+            Metodologia personalizada para crianças, jovens e adultos no Parque dos Passaros.
+          </p>
+
+          <!-- Ações do Hero -->
+          <div class="mt-8 flex flex-wrap gap-4" data-video="cta">
+            <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-cta group inline-flex items-center gap-3 rounded-2xl bg-crimson-500 px-7 py-4 text-base font-bold text-white shadow-lg shadow-crimson-500/30 transition-all hover:-translate-y-0.5 hover:bg-crimson-600" data-video="whatsapp">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+              </svg>
+              <span>Agendar aula experimental no WhatsApp</span>
+            </a>
+
+            <a href="#grade" class="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/5 px-6 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10">
+              <span>Ver cursos e horários</span>
+              <span>↓</span>
+            </a>
+          </div>
+
+          <!-- Rating e Credenciais Google -->
+          <div class="mt-10 flex flex-wrap items-center gap-5 border-t border-white/10 pt-6">
+            <div class="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-1.5 text-sm backdrop-blur-sm">
+              <span class="text-amber-400">★★★★★</span>
+              <span class="font-bold text-white">5,0</span>
+              <span class="text-xs text-navy-100/70">(7 avaliações no Google)</span>
+            </div>
+            <span class="hidden h-6 w-px bg-white/20 sm:block"></span>
+            <p class="text-xs text-navy-100/70">
+              Atendimento presencial no <strong class="font-semibold text-white">Parque dos Passaros</strong> e turmas ao vivo
+            </p>
+          </div>
+        </div>
+
+        <!-- Coluna Visual / Moldura do Hero -->
+        <div class="relative mx-auto w-full max-w-[480px]">
+          <div class="relative rounded-t-[999px] rounded-b-[2rem] bg-gradient-to-b from-white/20 to-white/5 p-2.5 shadow-2xl ring-1 ring-white/15">
+            <img src="https://gz0.googleusercontent.com/grass-cs/AABkmLfCdM9QrSvGWMIpFbXaGJA66VEjtG2ZRWjfGZnJzqFMEcEz6WnycwQNWj4e8PFdHonvngWid2-Q9QzFSzXSXCvfZyagFRJ7cyAgawoVWbFqQbI-7Y2V0Jqvxk3d_X4EzQ5nn2yUXg=w411-h308-k-no" alt="Buckingham Idiomas" class="aspect-[4/5] w-full rounded-t-[999px] rounded-b-[1.6rem] object-cover" loading="eager">
+          </div>
+
+          <!-- Tag Flutuante: Turmas Reduzidas -->
+          <div class="absolute -left-3 top-[20%] rounded-2xl bg-white p-3.5 text-navy-900 shadow-xl ring-1 ring-slate-200/80 sm:-left-8">
+            <div class="flex items-center gap-3">
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-crimson-50 text-crimson-500 font-bold text-lg">
+                👥
+              </span>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Turmas Reduzidas</p>
+                <p class="font-display text-xs font-extrabold text-navy-900">Atenção individualizada</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tag Flutuante: Aula Experimental -->
+          <div class="absolute -right-3 bottom-[12%] rounded-2xl bg-navy-900/95 p-3.5 text-white shadow-xl ring-1 ring-white/15 backdrop-blur-md sm:-right-6">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-crimson-300">Aula Experimental</p>
+            <p class="font-display text-xs font-extrabold mt-0.5">Agende pelo WhatsApp</p>
+            <div class="mt-2 flex gap-1.5 text-[10px] font-bold">
+              <span class="rounded bg-crimson-500 px-1.5 py-0.5">A1</span>
+              <span class="rounded bg-navy-700 px-1.5 py-0.5">B1</span>
+              <span class="rounded bg-navy-600 px-1.5 py-0.5">C1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faixa de Palavras em Inglês na Base do Hero -->
+      <div class="overflow-hidden border-t border-white/10 bg-navy-950/70 py-3.5 backdrop-blur">
+        <div class="flex w-max animate-marquee gap-8 whitespace-nowrap text-white/40 font-serif italic text-lg">
+          <span>Fluency <strong class="text-crimson-400">✦</strong></span>
+          <span>Confidence <strong class="text-crimson-400">✦</strong></span>
+          <span>Pronunciation <strong class="text-crimson-400">✦</strong></span>
+          <span>Great Job <strong class="text-crimson-400">✦</strong></span>
+          <span>Conversação <strong class="text-crimson-400">✦</strong></span>
+          <span>You Got This <strong class="text-crimson-400">✦</strong></span>
+          <span>Fluency <strong class="text-crimson-400">✦</strong></span>
+          <span>Confidence <strong class="text-crimson-400">✦</strong></span>
+          <span>Pronunciation <strong class="text-crimson-400">✦</strong></span>
+          <span>Great Job <strong class="text-crimson-400">✦</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. STATS BAR ==================== -->
+    <section aria-label="Números da escola" class="container relative z-10 -mt-10">
+      <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl lg:p-8">
+        <div class="grid grid-cols-2 gap-6 lg:grid-cols-4 lg:gap-8">
+          <div class="border-r border-slate-100 last:border-0 pr-4">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avaliações</p>
+            <p class="mt-1 font-display text-2xl font-extrabold text-navy-900 lg:text-3xl">★ 5,0</p>
+            <p class="mt-0.5 text-xs text-slate-500">7 opiniões no Google</p>
+          </div>
+          <div class="border-r border-slate-100 last:border-0 pr-4">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Padrão</p>
+            <p class="mt-1 font-display text-2xl font-extrabold text-navy-900 lg:text-3xl">A1 ao C1</p>
+            <p class="mt-0.5 text-xs text-slate-500">Quadro Europeu (CEFR)</p>
+          </div>
+          <div class="border-r border-slate-100 last:border-0 pr-4">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Foco das Aulas</p>
+            <p class="mt-1 font-display text-2xl font-extrabold text-navy-900 lg:text-3xl">100% Prático</p>
+            <p class="mt-0.5 text-xs text-slate-500">Conversação desde o início</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Localização</p>
+            <p class="mt-1 font-display text-xl font-extrabold text-navy-900 lg:text-2xl">Parque dos Passaros</p>
+            <p class="mt-0.5 text-xs text-slate-500">São Bernardo do Campo</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. JORNADAS PERSONALIZADAS ==================== -->
+    <section class="container pt-20 sm:pt-28" aria-labelledby="jornadas">
+      <div class="max-w-2xl">
+        <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Jornadas Personalizadas</p>
+        <h2 id="jornadas" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+          Aulas de idiomas <span class="accent text-crimson-500 font-serif italic">com foco no seu objetivo:</span>
+        </h2>
+        <p class="mt-3 text-base text-slate-600">
+          Cada aluno tem uma história e uma necessidade. Escolha seu perfil e veja como estruturamos seu aprendizado na <strong>Buckingham Idiomas</strong>.
+        </p>
+      </div>
+
+      <!-- Seletor de Perfis -->
+      <div class="mt-8 flex flex-wrap gap-2.5">
+        <button data-profile-btn="carreira" class="rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white shadow-md transition">
+          💼 Carreira & Negócios
+        </button>
+        <button data-profile-btn="viagens" class="rounded-xl bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
+          ✈️ Viagens & Intercâmbio
+        </button>
+        <button data-profile-btn="iniciantes" class="rounded-xl bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
+          🌱 Iniciantes do Zero
+        </button>
+        <button data-profile-btn="jovens" class="rounded-xl bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
+          🎓 Crianças & Teens
+        </button>
+      </div>
+
+      <!-- Conteúdo das Jornadas -->
+      <div class="mt-6">
+        <!-- Card 1: Carreira -->
+        <div data-profile-card="carreira" class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="grid gap-6 md:grid-cols-2 items-center">
+            <div>
+              <span class="inline-block rounded-lg bg-crimson-50 px-3 py-1 text-xs font-bold text-crimson-600">Inglês Profissional</span>
+              <h3 class="font-display text-2xl font-extrabold text-navy-900 mt-3">Para quem precisa do idioma no trabalho</h3>
+              <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                Reuniões, apresentações, e-mails e negociações com segurança. Treinamos situações reais do mundo corporativo com vocabulário técnico e simulações práticas.
+              </p>
+              <div class="mt-5 flex items-center gap-4 text-xs font-semibold text-slate-500">
+                <span>⏱️ Carga flexível</span>
+                <span>•</span>
+                <span>🗣️ Simulações executivas</span>
+              </div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 p-6 border border-slate-100">
+              <h4 class="font-bold text-navy-900 text-sm">O que você desenvolve:</h4>
+              <ul class="mt-3 space-y-2 text-xs text-slate-600">
+                <li class="flex items-center gap-2">✓ Destravar a fala em chamadas de vídeo internacionais</li>
+                <li class="flex items-center gap-2">✓ Preparação para entrevistas de emprego em multinacionais</li>
+                <li class="flex items-center gap-2">✓ Redação e vocabulário assertivo para e-mails e relatórios</li>
+              </ul>
+              <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex w-full justify-center rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800 transition">
+                Consultar horários executivos
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Viagens -->
+        <div data-profile-card="viagens" class="hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="grid gap-6 md:grid-cols-2 items-center">
+            <div>
+              <span class="inline-block rounded-lg bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">Viagens & Turismo</span>
+              <h3 class="font-display text-2xl font-extrabold text-navy-900 mt-3">Viaje sem passar aperto ou vergonha</h3>
+              <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                Foco total nas situações de viagem: aeroportos, imigração, hotéis, restaurantes, compras e emergências. Você aprende o que realmente vai usar no dia a dia.
+              </p>
+              <div class="mt-5 flex items-center gap-4 text-xs font-semibold text-slate-500">
+                <span>✈️ Módulos temáticos</span>
+                <span>•</span>
+                <span>🏨 Situações reais</span>
+              </div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 p-6 border border-slate-100">
+              <h4 class="font-bold text-navy-900 text-sm">Prática intensiva para:</h4>
+              <ul class="mt-3 space-y-2 text-xs text-slate-600">
+                <li class="flex items-center gap-2">✓ Responder com tranquilidade na imigração e alfândega</li>
+                <li class="flex items-center gap-2">✓ Fazer pedidos, reservas e pedir informações nas ruas</li>
+                <li class="flex items-center gap-2">✓ Resolver imprevistos de voo, bagagem e hospedagem</li>
+              </ul>
+              <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex w-full justify-center rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800 transition">
+                Montar plano de viagem
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Iniciantes -->
+        <div data-profile-card="iniciantes" class="hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="grid gap-6 md:grid-cols-2 items-center">
+            <div>
+              <span class="inline-block rounded-lg bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">Do Zero à Conversação</span>
+              <h3 class="font-display text-2xl font-extrabold text-navy-900 mt-3">Para quem acha que não tem jeito para idiomas</h3>
+              <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                Método acolhedor, sem cobrança exagerada e com paciência. Explicamos cada passo para você construir uma base forte e falar as primeiras frases completas logo nas primeiras semanas.
+              </p>
+              <div class="mt-5 flex items-center gap-4 text-xs font-semibold text-slate-500">
+                <span>🌱 Ritmo confortável</span>
+                <span>•</span>
+                <span>🧠 Didática descomplicada</span>
+              </div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 p-6 border border-slate-100">
+              <h4 class="font-bold text-navy-900 text-sm">Nossos compromissos com iniciantes:</h4>
+              <ul class="mt-3 space-y-2 text-xs text-slate-600">
+                <li class="flex items-center gap-2">✓ Zero julgamento ou constrangimento em sala</li>
+                <li class="flex items-center gap-2">✓ Professores dedicados que repetem e apoiam cada aluno</li>
+                <li class="flex items-center gap-2">✓ Material visual e prático, sem decoreba chata</li>
+              </ul>
+              <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex w-full justify-center rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800 transition">
+                Começar do zero
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Jovens -->
+        <div data-profile-card="jovens" class="hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div class="grid gap-6 md:grid-cols-2 items-center">
+            <div>
+              <span class="inline-block rounded-lg bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">Kids & Teens</span>
+              <h3 class="font-display text-2xl font-extrabold text-navy-900 mt-3">Base sólida e natural para o futuro</h3>
+              <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                Dinâmicas interativas, jogos pedagógicos e conversação que despertam o prazer de aprender. O inglês se torna natural e espontâneo desde a infância.
+              </p>
+              <div class="mt-5 flex items-center gap-4 text-xs font-semibold text-slate-500">
+                <span>🎮 Aulas lúdicas</span>
+                <span>•</span>
+                <span>📚 Apoio escolar e vestibular</span>
+              </div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 p-6 border border-slate-100">
+              <h4 class="font-bold text-navy-900 text-sm">Destaques do programa:</h4>
+              <ul class="mt-3 space-y-2 text-xs text-slate-600">
+                <li class="flex items-center gap-2">✓ Turmas divididas rigorosamente por faixa etária</li>
+                <li class="flex items-center gap-2">✓ Estímulo constante à pronúncia correta</li>
+                <li class="flex items-center gap-2">✓ Relatórios de evolução periódicos para os pais</li>
+              </ul>
+              <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex w-full justify-center rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800 transition">
+                Consultar turmas infantis
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. GRADE CURRICULAR ==================== -->
+    <section id="grade" class="container pt-20 sm:pt-28" aria-labelledby="grade-titulo">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Grade Curricular</p>
+          <h2 id="grade-titulo" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+            Níveis e Modalidades no Parque dos Passaros
+          </h2>
+          <p class="mt-2 text-base text-slate-600">
+            Formatos desenhados para caber na sua rotina com turmas presenciais e opções online.
+          </p>
+        </div>
+        <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-crimson-500 hover:text-crimson-600">
+          Tirar dúvidas sobre turmas →
+        </a>
+      </div>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Curso 1 -->
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="rounded-xl bg-navy-50 p-2.5 text-xl">📘</span>
+            <span class="text-xs font-bold text-slate-400">A1 · A2</span>
+          </div>
+          <h3 class="font-display text-xl font-extrabold text-navy-900 mt-4">Inglês para Iniciantes</h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Construção de vocabulário básico, estrutura de frases e segurança para dialogar em situações simples e diretas.
+          </p>
+          <div class="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between text-xs">
+            <span class="font-semibold text-slate-500">Turmas reduzidas</span>
+            <a href="https://wa.me/5511940158281" class="font-bold text-crimson-500 hover:underline">Saiba mais</a>
+          </div>
+        </div>
+
+        <!-- Curso 2 -->
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="rounded-xl bg-crimson-50 p-2.5 text-xl">🗣️</span>
+            <span class="text-xs font-bold text-slate-400">B1 · B2</span>
+          </div>
+          <h3 class="font-display text-xl font-extrabold text-navy-900 mt-4">Conversação em Inglês</h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Desenvolvimento da fluência espontânea, correção de vícios de pronúncia e ampliação do repertório cultural e profissional.
+          </p>
+          <div class="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between text-xs">
+            <span class="font-semibold text-slate-500">Prática ativa</span>
+            <a href="https://wa.me/5511940158281" class="font-bold text-crimson-500 hover:underline">Saiba mais</a>
+          </div>
+        </div>
+
+        <!-- Curso 3 -->
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="rounded-xl bg-amber-50 p-2.5 text-xl">🎯</span>
+            <span class="text-xs font-bold text-slate-400">Personalizado</span>
+          </div>
+          <h3 class="font-display text-xl font-extrabold text-navy-900 mt-4">Aulas Particulares e em Turmas</h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Carga horária e ritmo adaptados ao seu tempo, com acompanhamento 1 a 1 ou em duplas para acelerar resultados específicos.
+          </p>
+          <div class="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between text-xs">
+            <span class="font-semibold text-slate-500">Horários flexíveis</span>
+            <a href="https://wa.me/5511940158281" class="font-bold text-crimson-500 hover:underline">Saiba mais</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. POR QUE A ESCOLA ==================== -->
+    <section id="porque" class="relative mt-20 overflow-hidden bg-white py-20 sm:mt-28 sm:py-28" aria-labelledby="porque-titulo">
+      <div class="bg-grain absolute inset-0 opacity-60" aria-hidden="true"></div>
+      <div class="container relative">
+        <div class="max-w-2xl mx-auto text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Diferenciais Pedagógicos</p>
+          <h2 id="porque-titulo" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+            Por que escolher a <span class="accent text-crimson-500 font-serif italic">Buckingham</span>?
+          </h2>
+          <p class="mt-3 text-base text-slate-600">
+            Ensinamos com método estruturado, proximidade e respeito ao ritmo de cada estudante no Parque dos Passaros.
+          </p>
+        </div>
+
+        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-2xl border border-slate-100 bg-paper p-6 shadow-sm">
+            <span class="text-3xl">🎯</span>
+            <h3 class="font-display font-bold text-navy-900 text-lg mt-4">Método Sem Decoreba</h3>
+            <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+              Foco na aplicação prática e conversação desde a aula inaugural, contextualizando expressões do dia a dia.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-slate-100 bg-paper p-6 shadow-sm">
+            <span class="text-3xl">👨‍🏫</span>
+            <h3 class="font-display font-bold text-navy-900 text-lg mt-4">Professores Dedicados</h3>
+            <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+              Equipe apaixonada por ensinar, com paciência para sanar dúvidas e orientar sua evolução passo a passo.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-slate-100 bg-paper p-6 shadow-sm">
+            <span class="text-3xl">👥</span>
+            <h3 class="font-display font-bold text-navy-900 text-lg mt-4">Turmas Reduzidas</h3>
+            <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+              Número limitado de alunos por sala, garantindo que você fale muito mais tempo em cada encontro.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-slate-100 bg-paper p-6 shadow-sm">
+            <span class="text-3xl">📍</span>
+            <h3 class="font-display font-bold text-navy-900 text-lg mt-4">Localização & Acesso</h3>
+            <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+              Espaço confortável no Parque dos Passaros com estrutura pensada para uma experiência de imersão agradável.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. DEPOIMENTOS REAIS ==================== -->
+    <section id="depoimentos" class="container py-20 sm:py-28" aria-labelledby="depoimentos-titulo">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Depoimentos Verificados</p>
+          <h2 id="depoimentos-titulo" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+            O que dizem nossos alunos
+          </h2>
+          <p class="mt-2 text-base text-slate-600">
+            Opiniões autênticas publicadas no perfil oficial do Google Maps da escola.
+          </p>
+        </div>
+        <div class="flex flex-col items-start md:items-end gap-2">
+          <div class="inline-flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-1.5 text-xs font-bold text-amber-800">
+            <span>★ 5,0</span>
+            <span>•</span>
+            <span>7 avaliações</span>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Buckingham%20Idiomas&amp;query_place_id=ChIJGyWbpLNDzpQRXm8mz2CrZzw" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-navy-900 hover:text-crimson-500">
+            Ver todas as avaliações no Google ↗
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="col-span-full rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-500 text-sm">
+      Mais de 7 avaliações registradas e verificadas com nota média <strong>★ 5,0</strong> no Google Maps.
+    </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. GALERIA / NOSSO ESPAÇO ==================== -->
+    <section id="galeria" class="container pb-20 sm:pb-28" aria-labelledby="galeria-titulo">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Nosso Espaço</p>
+          <h2 id="galeria-titulo" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+            Ambiente acolhedor no Parque dos Passaros
+          </h2>
+          <p class="mt-2 text-base text-slate-600">
+            Fotos do espaço e salas da <strong>Buckingham Idiomas</strong> em São Bernardo do Campo.
+          </p>
+        </div>
+        <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-crimson-500 hover:text-crimson-600">
+          Agendar visita presencial →
+        </a>
+      </div>
+
+      <div class="mt-8 grid gap-4 grid-cols-2 lg:grid-cols-3">
+        
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 aspect-video shadow-sm">
+        <img src="https://gz0.googleusercontent.com/grass-cs/AABkmLfCdM9QrSvGWMIpFbXaGJA66VEjtG2ZRWjfGZnJzqFMEcEz6WnycwQNWj4e8PFdHonvngWid2-Q9QzFSzXSXCvfZyagFRJ7cyAgawoVWbFqQbI-7Y2V0Jqvxk3d_X4EzQ5nn2yUXg=w411-h308-k-no" alt="Espaço da Escola" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy">
+      </div>
+    
+      </div>
+    </section>
+
+    <!-- ==================== 8. FAQ ==================== -->
+    <section id="faq" class="container grid gap-12 py-20 sm:py-28 lg:grid-cols-[1fr_1.4fr]" aria-labelledby="faq-titulo">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-crimson-500">Perguntas Frequentes</p>
+        <h2 id="faq-titulo" class="display-lg mt-2 font-display font-extrabold text-navy-900">
+          Tire suas dúvidas
+        </h2>
+        <p class="mt-3 text-base text-slate-600">
+          Não encontrou o que procurava? Fale com a secretaria no WhatsApp — respondemos com agilidade.
+        </p>
+        <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-crimson-500 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-crimson-600 transition">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+          </svg>
+          <span>Falar com a secretaria no WhatsApp</span>
+        </a>
+      </div>
+
+      <!-- Itens do Accordion -->
+      <div class="space-y-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" data-accordion-item>
+          <button type="button" class="flex w-full items-center justify-between text-left font-bold text-navy-900 text-sm" data-accordion-trigger>
+            <span>Como funciona a aula experimental?</span>
+            <span class="text-xl transition-transform duration-200" data-accordion-icon>▾</span>
+          </button>
+          <div class="mt-3 text-xs text-slate-600 leading-relaxed hidden" data-accordion-content>
+            A aula experimental é sem compromisso. Você conhece nossa dinâmica pedagógica, conversa com o professor e avalia se o ritmo e o método fazem sentido para você antes de se matricular.
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" data-accordion-item>
+          <button type="button" class="flex w-full items-center justify-between text-left font-bold text-navy-900 text-sm" data-accordion-trigger>
+            <span>Nunca estudei inglês antes. Vou conseguir acompanhar?</span>
+            <span class="text-xl transition-transform duration-200" data-accordion-icon>▾</span>
+          </button>
+          <div class="mt-3 text-xs text-slate-600 leading-relaxed hidden" data-accordion-content>
+            Sim! Temos turmas dedicadas a iniciantes absolutos. O método começa das estruturas mais simples com muita paciência e repetição prática até você se sentir seguro.
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" data-accordion-item>
+          <button type="button" class="flex w-full items-center justify-between text-left font-bold text-navy-900 text-sm" data-accordion-trigger>
+            <span>Quais são os horários de aula disponíveis?</span>
+            <span class="text-xl transition-transform duration-200" data-accordion-icon>▾</span>
+          </button>
+          <div class="mt-3 text-xs text-slate-600 leading-relaxed hidden" data-accordion-content>
+            Oferecemos turmas nos períodos da manhã, tarde, noite e aos sábados. Chame nossa equipe no WhatsApp para consultar vagas abertas no seu horário de preferência.
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" data-accordion-item>
+          <button type="button" class="flex w-full items-center justify-between text-left font-bold text-navy-900 text-sm" data-accordion-trigger>
+            <span>As aulas são presenciais ou online?</span>
+            <span class="text-xl transition-transform duration-200" data-accordion-icon>▾</span>
+          </button>
+          <div class="mt-3 text-xs text-slate-600 leading-relaxed hidden" data-accordion-content>
+            Trabalhamos com turmas presenciais na unidade do Parque dos Passaros e também com turmas com aulas ao vivo pela internet para quem prefere estudar de casa.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. CTA FINAL + MAPA ==================== -->
+    <section id="cta-final" class="relative overflow-hidden bg-navy-950 py-20 text-white sm:py-28" aria-labelledby="cta-final-titulo">
+      <div class="bg-diagonals absolute inset-0" aria-hidden="true"></div>
+      <div class="absolute -left-40 top-0 h-[460px] w-[460px] rounded-full bg-crimson-500/20 blur-[130px]" aria-hidden="true"></div>
+
+      <div class="container relative grid items-center gap-12 lg:grid-cols-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-crimson-300">Comece Hoje</span>
+          <h2 id="cta-final-titulo" class="display-lg mt-3 text-white font-display font-extrabold">
+            Venha sentir a diferença de aprender <span class="accent text-crimson-300 font-serif italic">do jeito certo</span>.
+          </h2>
+          <p class="mt-5 max-w-lg text-base leading-relaxed text-navy-100/80">
+            Agende sua aula experimental na <strong>Buckingham Idiomas</strong>, tire suas dúvidas diretamente com a coordenação pedagógica e descubra a turma ideal para você no Parque dos Passaros.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 rounded-2xl bg-crimson-500 px-7 py-4 text-base font-bold text-white shadow-lg shadow-crimson-500/30 transition-all hover:bg-crimson-600 hover:-translate-y-0.5">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+              </svg>
+              <span>Agendar aula experimental</span>
+            </a>
+          </div>
+
+          <div class="mt-8 border-t border-white/10 pt-4 text-xs text-navy-100/70">
+            <p>📍 Av. dos Flamingos, 229 - Parque dos Passaros, São Bernardo do Campo - SP, 09861-370, Brasil</p>
+            <p class="mt-1">🕒 quarta-feira: 08:00 to 21:00 · quinta-feira: 08:00 to 21:00</p>
+          </div>
+        </div>
+
+        <!-- Mapa Embutido -->
+        <div class="relative overflow-hidden rounded-3xl border border-white/15 bg-white/5 p-2.5 shadow-2xl backdrop-blur-sm">
+          <iframe 
+            src="https://maps.google.com/maps?q=Buckingham%20Idiomas%20Parque%20dos%20Passaros%20S%C3%A3o%20Bernardo%20do%20Campo&amp;output=embed" 
+            width="100%" 
+            height="380" 
+            style="border:0; border-radius: 20px;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-slate-200 bg-white py-12">
+    <div class="container grid gap-8 md:grid-cols-3 items-center">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-display font-extrabold text-navy-900 text-lg">Buckingham Idiomas</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Av. dos Flamingos, 229 - Parque dos Passaros, São Bernardo do Campo - SP, 09861-370, Brasil</p>
+        <p class="text-xs text-slate-400 mt-0.5">Telefone: 11 94015-8281</p>
+      </div>
+
+      <div class="text-center md:text-left">
+        <p class="text-xs font-semibold text-slate-700">Horário de Atendimento:</p>
+        <p class="text-xs text-slate-500 mt-1">quarta-feira: 08:00 to 21:00 · quinta-feira: 08:00 to 21:00</p>
+      </div>
+
+      <div class="text-right">
+        <p class="text-xs font-semibold text-slate-700">Classificação no Google:</p>
+        <p class="text-xs text-amber-600 font-bold mt-1">★ 5,0 (7 avaliações verificadas)</p>
+        <p class="text-[11px] text-slate-400 mt-2">© 2026 Buckingham Idiomas. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== BOTÃO FLUTUANTE DO WHATSAPP ==================== -->
+  <div class="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
+    <a href="https://wa.me/5511940158281" target="_blank" rel="noopener noreferrer" aria-label="Conversar no WhatsApp" class="group relative flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-white shadow-[0_12px_30px_-8px_rgba(37,211,102,0.75)] transition-transform duration-300 hover:scale-105">
+      <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7">
+        <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35M12.05 21.5h-.01a9.46 9.46 0 0 1-4.82-1.32l-.35-.2-3.58.93.96-3.49-.23-.36a9.43 9.43 0 0 1-1.45-5.03c0-5.22 4.25-9.47 9.48-9.47 2.53 0 4.91.99 6.7 2.78a9.4 9.4 0 0 1 2.77 6.7c0 5.23-4.25 9.47-9.47 9.47M20.11 3.88A11.32 11.32 0 0 0 12.05.55C5.77.55.66 5.66.66 11.94c0 2.01.52 3.97 1.52 5.7L.56 23.55l6.04-1.58a11.37 11.37 0 0 0 5.44 1.39h.01c6.28 0 11.39-5.11 11.39-11.39 0-3.04-1.18-5.9-3.33-8.06"></path>
+      </svg>
+      <span class="absolute right-0.5 top-0.5 flex h-3.5 w-3.5">
+        <span class="absolute inline-flex h-full w-full animate-ping-soft rounded-full bg-emerald-300"></span>
+        <span class="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400"></span>
+      </span>
+    </a>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

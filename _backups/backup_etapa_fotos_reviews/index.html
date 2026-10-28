@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{NOME_CLINICA}} · {{TITULO}}</title>
+  <meta name="description" content="{{SUBTITULO}}">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Topo / Barra de Destaque -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-logo">
+        <span class="brand-name">{{NOME_CLINICA}}</span>
+        <span class="brand-city">{{BAIRRO}} · São Paulo</span>
+      </div>
+      <div class="header-cta">
+        <a href="{{LINK_WHATSAPP}}" class="btn btn-outline-sm" target="_blank" rel="noopener noreferrer">
+          <span>Secretaria</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" data-video="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="badge-pill">
+          <span class="star-icon">★</span>
+          <strong>{{NOTA}}</strong> no Google ({{AVALIACOES}} avaliações)
+        </div>
+        <h1 class="hero-title">{{TITULO}}</h1>
+        <p class="hero-subtitle">{{SUBTITULO}}</p>
+        
+        <div class="hero-actions" data-video="cta">
+          <a href="{{LINK_WHATSAPP}}" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer" data-video="whatsapp">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+            </svg>
+            <span>{{TEXTO_BOTAO}}</span>
+          </a>
+        </div>
+        <div class="hero-info-line">
+          <span>📍 Atendimento presencial no {{BAIRRO}} e turmas online</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cursos e Modalidades -->
+  <section class="section-cursos" data-video="servicos">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Programas e Modalidades</span>
+        <h2>Cursos de Idiomas no {{BAIRRO}}</h2>
+        <p>Aulas com foco no seu objetivo pessoal, acadêmico ou profissional.</p>
+      </div>
+
+      <div class="cursos-grid">
+        <div class="curso-card">
+          <div class="curso-icon">📘</div>
+          <h3>{{SERVICO_1}}</h3>
+          <p>Desenvolvimento gradual de vocabulário, estrutura gramatical e compreensão auditiva desde a primeira aula.</p>
+        </div>
+
+        <div class="curso-card">
+          <div class="curso-icon">🗣️</div>
+          <h3>{{SERVICO_2}}</h3>
+          <p>Prática de conversação para destravar a fala em situações reais, viagens, reuniões e entrevistas de trabalho.</p>
+        </div>
+
+        <div class="curso-card">
+          <div class="curso-icon">🎯</div>
+          <h3>{{SERVICO_3}}</h3>
+          <p>Formatos flexíveis adaptados à sua rotina, com turmas reduzidas ou aulas individuais focadas nas suas necessidades.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sobre a Escola & Localização -->
+  <section class="section-sobre" data-video="sobre">
+    <div class="container">
+      <div class="sobre-grid">
+        <div class="sobre-text">
+          <span class="section-tag">Sobre a Escola</span>
+          <h2>Ensino de qualidade e proximidade no {{BAIRRO}}</h2>
+          <p class="sobre-p">
+            Na <strong>{{NOME_CLINICA}}</strong>, cada aluno recebe atenção pedagógica individualizada. Nosso compromisso é construir uma base sólida no idioma com método eficiente e suporte contínuo dos professores.
+          </p>
+
+          <div class="detalhes-list">
+            <div class="detalhe-item">
+              <span class="detalhe-icon">📍</span>
+              <div>
+                <strong>Endereço:</strong>
+                <p>{{ENDERECO}}</p>
+              </div>
+            </div>
+            <div class="detalhe-item">
+              <span class="detalhe-icon">🕒</span>
+              <div>
+                <strong>Horário de Funcionamento:</strong>
+                <p>{{HORARIO}}</p>
+              </div>
+            </div>
+            <div class="detalhe-item">
+              <span class="detalhe-icon">📞</span>
+              <div>
+                <strong>Telefone / WhatsApp:</strong>
+                <p><a href="{{LINK_TELEFONE}}">{{TELEFONE}}</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sobre-mapa">
+          <div class="mapa-wrapper">
+            <iframe 
+              src="{{MAPA_EMBED}}" 
+              width="100%" 
+              height="340" 
+              style="border:0; border-radius: 14px;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chamada Final (CTA) -->
+  <section class="section-final-cta">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Pronto para começar seus estudos?</h2>
+        <p>Fale diretamente com nossa coordenação pedagógica para tirar dúvidas, consultar horários disponíveis e agendar uma aula experimental.</p>
+        <div class="cta-actions">
+          <a href="{{LINK_WHATSAPP}}" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c.969.54 1.802.833 2.806.833 3.181 0 5.767-2.586 5.768-5.766.001-3.18-2.585-5.766-5.768-5.766zm9.969 5.766c0 5.503-4.469 9.972-9.972 9.972-1.748 0-3.39-.452-4.819-1.246l-5.209 1.368 1.391-5.076c-.886-1.488-1.395-3.23-1.395-5.093 0-5.503 4.469-9.972 9.972-9.972 5.503 0 10.032 4.494 10.032 10.047z"/>
+            </svg>
+            <span>Falar com a secretaria no WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <span class="footer-title">{{NOME_CLINICA}}</span>
+        <p class="footer-sub">{{ENDERECO}}</p>
+      </div>
+      <div class="footer-col text-right">
+        <p class="footer-note">Informações extraídas do perfil oficial verificado no Google Maps.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
