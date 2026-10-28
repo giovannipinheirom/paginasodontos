@@ -1,6 +1,6 @@
 // Gerado automaticamente pelo gerador de vídeos
 // Total de clínicas com vídeo: 19 (Raio-x: 4)
-// Atualizado em: 28/10/2026, 11:46:07
+// Atualizado em: 28/10/2026, 12:44:00
 window.VIDEOS_GERADOS = [
   "belo-sorriso-odontologia-vila-albano",
   "dalbosco-odontologia-parque-alves-de-lima",

@@ -525,72 +525,144 @@ function renderEscolaOficial(escola, baseHtml) {
   const endereco = escola.ENDERECO || `${bairro}, ${cidade} - SP`;
   const fotoCapa = escola.FOTO_CAPA || escola.FOTO_PRINCIPAL || '';
 
-  // Foto Hero HTML
-  let fotoHeroHtml = '';
+  // Foto Hero Conteúdo HTML (vai dentro da moldura externa em arco do template)
+  let fotoHeroConteudo = '';
   if (fotoCapa) {
-    fotoHeroHtml = `<img src="${esc(fotoCapa)}" alt="${esc(nome)}" class="aspect-[4/5] w-full rounded-t-[999px] rounded-b-[1.6rem] object-cover" loading="eager">`;
-  } else {
-    fotoHeroHtml = `<div class="aspect-[4/5] w-full rounded-t-[999px] rounded-b-[1.6rem] bg-navy-900 flex flex-col items-center justify-center text-center p-8">
-      <span class="text-6xl font-extrabold text-white font-display">${esc(monogram)}</span>
-      <span class="mt-4 text-xs font-bold uppercase tracking-widest text-crimson-400">${esc(nome)}</span>
-      <span class="mt-1 text-xs text-navy-200">${esc(bairro)} · ${esc(cidade)}</span>
+    fotoHeroConteudo = `<div class="relative overflow-hidden aspect-[4/5] w-full rounded-t-[999px] rounded-b-[1.6rem]">
+      <img src="${esc(fotoCapa)}" alt="${esc(nome)}" class="h-full w-full object-cover" loading="eager">
     </div>`;
+  } else {
+    // Placeholder radar concêntrico idêntico ao modelo (Image 2)
+    fotoHeroConteudo = `<div role="img" aria-label="Espaço reservado para foto: Sala de aula principal" class="relative flex items-center justify-center overflow-hidden bg-navy-800 aspect-[4/5] w-full rounded-t-[999px] rounded-b-[1.6rem]"><svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 h-full w-full"><g fill="none" stroke="#fff" stroke-width="0.3" opacity="0.16"><circle cx="50" cy="50" r="12"></circle><circle cx="50" cy="50" r="22"></circle><circle cx="50" cy="50" r="32"></circle><circle cx="50" cy="50" r="42"></circle><circle cx="50" cy="50" r="52"></circle><circle cx="50" cy="62"></circle></g><circle cx="50" cy="50" r="32" fill="none" stroke="#C8102E" stroke-width="0.5" stroke-dasharray="22 180" opacity="0.6"></circle></svg><div class="relative z-10 flex flex-col items-center gap-2 px-6 text-center"><span class="flex h-11 w-11 items-center justify-center rounded-full ring-1 backdrop-blur bg-white/10 text-white ring-white/20"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera h-5 w-5" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></span><span class="text-[10px] font-bold uppercase tracking-eyebrow text-crimson-300">[Foto]</span><span class="max-w-[16rem] text-sm font-semibold text-white">Sala de aula principal</span></div></div>`;
   }
 
   // Depoimentos Reais Cards HTML
-  let depoimentosHtml = '';
   const reviews = Array.isArray(escola.AVALIACOES_REAIS) ? escola.AVALIACOES_REAIS : [];
+  let depoimentosCardsHtml = '';
   if (reviews.length > 0) {
-    depoimentosHtml = reviews.map(r => {
+    depoimentosCardsHtml = reviews.slice(0, 6).map(r => {
       const avatarHtml = r.fotoAutor
-        ? `<img src="${esc(r.fotoAutor)}" alt="${esc(r.autor)}" class="h-10 w-10 rounded-full object-cover">`
-        : `<div class="h-10 w-10 rounded-full bg-navy-100 flex items-center justify-center font-bold text-navy-900 text-sm">${esc((r.autor || 'A')[0])}</div>`;
-      const estrelasStr = '★'.repeat(r.estrelas || 5);
-      return `<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+        ? `<img src="${esc(r.fotoAutor)}" alt="${esc(r.autor)}" class="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100">`
+        : `<div class="h-11 w-11 rounded-full bg-navy-100 text-navy-900 flex items-center justify-center font-display font-extrabold text-sm ring-2 ring-slate-100">${esc((r.autor || 'A')[0])}</div>`;
+      const numEstrelas = r.estrelas || 5;
+      const estrelasHtml = Array(numEstrelas).fill('<svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>').join('');
+      return `<div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-crimson-500/50 hover:shadow-lift">
         <div>
           <div class="flex items-center gap-3">
             ${avatarHtml}
             <div>
-              <h4 class="font-display font-bold text-navy-900 text-sm">${esc(r.autor)}</h4>
+              <h3 class="font-display font-bold text-navy-900 text-[15px]">${esc(r.autor)}</h3>
               <p class="text-[11px] text-slate-400">Aluno no Google · ${esc(r.data || 'recente')}</p>
             </div>
           </div>
-          <div class="mt-3 text-amber-500 text-xs tracking-wider">${estrelasStr}</div>
-          <p class="mt-3 text-xs leading-relaxed text-slate-600 italic">"${esc(r.texto)}"</p>
+          <div class="mt-4 flex items-center gap-0.5">
+            ${estrelasHtml}
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-600 italic">“${esc(r.texto)}”</p>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
-          <span class="inline-block h-3.5 w-3.5 rounded-full bg-blue-500 text-white text-[9px] font-bold text-center leading-[14px]">G</span>
-          Avaliação verificada
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+          <span class="inline-flex items-center gap-1.5 font-semibold text-slate-600">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.45a5.52 5.52 0 0 1-2.4 3.62v3h3.88c2.27-2.09 3.57-5.17 3.57-8.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.88-3c-1.07.72-2.45 1.15-4.06 1.15-3.12 0-5.77-2.11-6.71-4.95H1.28v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.29 14.29a7.2 7.2 0 0 1 0-4.58v-3.1H1.28a12 12 0 0 0 0 10.78l4.01-3.1z"/><path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.59 1.8l3.44-3.44A11.5 11.5 0 0 0 12 0 12 12 0 0 0 1.28 6.61l4.01 3.1C6.23 6.86 8.88 4.75 12 4.75z"/></svg>
+            Avaliação no Google
+          </span>
+          <span class="font-medium text-amber-600">★ ${numEstrelas},0</span>
         </div>
       </div>`;
     }).join('\n');
   } else {
-    depoimentosHtml = `<div class="col-span-full rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-500 text-sm">
-      Mais de ${esc(escola.AVALIACOES || '10')} avaliações registradas e verificadas com nota média <strong>★ ${esc(escola.NOTA || '5,0')}</strong> no Google Maps.
+    depoimentosCardsHtml = `<div class="col-span-full rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-card">
+      <p class="font-display text-2xl font-extrabold text-navy-900">★ ${esc(escola.NOTA || '5,0')} no Google Maps</p>
+      <p class="mt-2 text-slate-500">Mais de ${esc(escola.AVALIACOES || '10')} alunos avaliaram com nota máxima a experiência e o aprendizado na escola.</p>
     </div>`;
   }
 
+  const secaoDepoimentosHtml = `<section class="container py-24 sm:py-32" aria-labelledby="depoimentos" id="depoimentos">
+    <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      <div class="max-w-3xl">
+        <p class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-eyebrow sm:text-xs text-crimson-500">
+          <span aria-hidden="true" class="flex h-2.5 items-center gap-[3px]">
+            <span class="h-full w-[3px] -skew-x-12 rounded-sm bg-navy-900"></span>
+            <span class="h-full w-[3px] -skew-x-12 rounded-sm bg-crimson-500"></span>
+          </span>
+          Depoimentos de alunos
+        </p>
+        <h2 class="display-lg mt-4 text-navy-900">
+          Resultados reais contados por <span class="accent text-crimson-500">quem estuda aqui</span>
+        </h2>
+        <p class="mt-5 text-base leading-relaxed sm:text-lg text-slate-600">
+          Avaliações espontâneas e verificadas registradas diretamente no perfil do Google Maps.
+        </p>
+      </div>
+    </div>
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      ${depoimentosCardsHtml}
+    </div>
+  </section>`;
+
   // Galeria de Fotos HTML
-  let galeriaHtml = '';
   const fotosExtras = Array.isArray(escola.FOTOS_EXTRAS) ? escola.FOTOS_EXTRAS : [];
   const fotosTodas = [fotoCapa, ...fotosExtras].filter(Boolean);
-  if (fotosTodas.length > 0) {
-    galeriaHtml = fotosTodas.slice(0, 3).map(url => `
-      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 aspect-video shadow-sm">
-        <img src="${esc(url)}" alt="Espaço da Escola" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy">
+
+  let galleryCardsHtml = '';
+  if (fotosTodas.length >= 3) {
+    galleryCardsHtml = `
+      <div class="col-span-2 row-span-2 overflow-hidden rounded-2.5xl border border-slate-200 bg-slate-100 shadow-card">
+        <img src="${esc(fotosTodas[0])}" alt="Espaço da Escola" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
+      </div>
+      <div class="col-span-1 row-span-1 overflow-hidden rounded-2.5xl border border-slate-200 bg-slate-100 shadow-card">
+        <img src="${esc(fotosTodas[1])}" alt="Salas de Aula" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
+      </div>
+      <div class="col-span-1 row-span-1 overflow-hidden rounded-2.5xl border border-slate-200 bg-slate-100 shadow-card">
+        <img src="${esc(fotosTodas[2])}" alt="Ambiente Imersivo" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
+      </div>
+      <div class="col-span-2 row-span-1 overflow-hidden rounded-2.5xl border border-slate-200 bg-slate-100 shadow-card">
+        <img src="${esc(fotosTodas[3] || fotosTodas[0])}" alt="Espaço de Convivência" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
+      </div>
+    `;
+  } else if (fotosTodas.length > 0) {
+    galleryCardsHtml = fotosTodas.map(url => `
+      <div class="col-span-2 row-span-1 overflow-hidden rounded-2.5xl border border-slate-200 bg-slate-100 shadow-card">
+        <img src="${esc(url)}" alt="Espaço da Escola" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy">
       </div>
     `).join('\n');
   } else {
-    galeriaHtml = `
-      <div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-500 text-sm">
-        Unidade própria com salas climatizadas e ambiente imersivo no ${esc(bairro)}, ${esc(cidade)}.
+    galleryCardsHtml = `
+      <div class="col-span-2 row-span-1 flex flex-col justify-center rounded-2.5xl border border-slate-200/80 bg-white p-8 shadow-card">
+        <span class="font-display text-xl font-bold text-navy-900">Salas climatizadas &amp; Multimídia</span>
+        <p class="mt-2 text-sm text-slate-500">Equipadas com telas interativas e áudio imersivo para prática dinâmica de conversação.</p>
+      </div>
+      <div class="col-span-2 row-span-1 flex flex-col justify-center rounded-2.5xl border border-slate-200/80 bg-white p-8 shadow-card">
+        <span class="font-display text-xl font-bold text-navy-900">Espaço de Convivência &amp; Coffee</span>
+        <p class="mt-2 text-sm text-slate-500">Ambiente acolhedor para trocar ideias em inglês antes e depois de cada aula.</p>
       </div>
     `;
   }
 
+  const secaoGaleriaHtml = `<section class="container py-24 sm:py-32" aria-labelledby="galeria" id="galeria">
+    <div class="max-w-3xl">
+      <p class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-eyebrow sm:text-xs text-crimson-500">
+        <span aria-hidden="true" class="flex h-2.5 items-center gap-[3px]">
+          <span class="h-full w-[3px] -skew-x-12 rounded-sm bg-navy-900"></span>
+          <span class="h-full w-[3px] -skew-x-12 rounded-sm bg-crimson-500"></span>
+        </span>
+        Nosso espaço
+      </p>
+      <h2 class="display-lg mt-4 text-navy-900">
+        Estrutura pensada para <span class="accent text-crimson-500">imersão no idioma</span>
+      </h2>
+      <p class="mt-5 text-base leading-relaxed sm:text-lg text-slate-600">
+        Salas preparadas, turmas reduzidas e localização de fácil acesso no ${esc(bairro)}.
+      </p>
+    </div>
+    <div class="mt-12 grid auto-rows-[180px] grid-cols-2 gap-4 sm:auto-rows-[220px] sm:grid-cols-4">
+      ${galleryCardsHtml}
+    </div>
+  </section>`;
+
   const tokens = {
     NOME_CLINICA: esc(nome),
     NOME: esc(nome),
+    NOME_MAIUSCULO: esc(nome.toUpperCase()),
     SHORT_NAME: esc(shortName),
     MONOGRAM: esc(monogram),
     LOGO_TAGLINE: 'English School',
@@ -610,10 +682,15 @@ function renderEscolaOficial(escola, baseHtml) {
     MAPA_EMBED: esc(escola.MAPA_EMBED || `https://maps.google.com/maps?q=${encodeURIComponent(nome + ' ' + bairro + ' ' + cidade)}&output=embed`),
     TELEFONE: esc(escola.TELEFONE || 'WhatsApp da Escola'),
     HORARIO: esc(escola.HORARIO || 'Segunda a sexta, 8h às 20h; sábado, 8h às 13h'),
-    FOTO_HERO_HTML: fotoHeroHtml,
-    DEPOIMENTOS_CARDS: depoimentosHtml,
-    GALERIA_CARDS: galeriaHtml,
-    ANO: String(new Date().getFullYear())
+    FOTO_HERO_CONTEUDO: fotoHeroConteudo,
+    FOTO_HERO_HTML: fotoHeroConteudo,
+    SECAO_DEPOIMENTOS_HTML: secaoDepoimentosHtml,
+    SECAO_GALERIA_HTML: secaoGaleriaHtml,
+    DEPOIMENTOS_CARDS: depoimentosCardsHtml,
+    GALERIA_CARDS: galleryCardsHtml,
+    ANO: String(new Date().getFullYear()),
+    ANO_FUNDACAO: '2015',
+    SLUG: esc(escola.SLUG || '')
   };
 
   let html = baseHtml.replace(/\{\{(\w+)\}\}/g, (m, key) => (key in tokens ? tokens[key] : m));
